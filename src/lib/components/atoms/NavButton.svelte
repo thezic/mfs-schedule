@@ -1,8 +1,11 @@
 <script lang="ts">
+	import { Icon, type IconSource } from '@steeze-ui/svelte-icon';
 	import { cx } from '$lib/utils/classes';
+
 	export let href: string;
 	export let name: string;
-	export let active: boolean;
+	export let active = false;
+	export let icon: IconSource;
 </script>
 
 <a
@@ -12,6 +15,6 @@
 		active && 'text-white bg-gray-800'
 	)}
 >
-	<slot />
+	<Icon src={icon} class="h-6 w-6 shrink-0" />
 	<span class="sr-only">{name}</span>
 </a>
