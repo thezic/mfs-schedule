@@ -3,6 +3,5 @@
 </script>
 
 <MainLayout>
-	<h1>Home</h1>
-	<div slot="aside">sidebar</div>
+	<h1>Planning</h1>
 </MainLayout>

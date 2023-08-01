@@ -1,11 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { Icon, type IconSource } from '@steeze-ui/svelte-icon';
 	import { cx } from '$lib/utils/classes';
 
 	export let href: string;
 	export let name: string;
-	export let active = false;
+	export let absolute = false;
 	export let icon: IconSource;
+
+	$: active = absolute ? $page.url.pathname === href : $page.url.pathname.startsWith(href);
 </script>
 
 <a
