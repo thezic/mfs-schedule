@@ -1,11 +1,22 @@
 <script lang="ts">
 	import MainLayout from '$lib/components/layouts/MainLayout.svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
+	import { invoke } from '@tauri-apps/api';
 
-	const persons = [
+	let persons = [
 		{ id: 1, name: 'Simon Dahlberg' },
 		{ id: 2, name: 'Karl Johansson' }
 	];
+
+	async function getPersons() {
+		const names = (await invoke('get_persons')) as string[];
+		persons = names.map((name: string, id: number) => ({
+			name,
+			id
+		}));
+	}
+
+	getPersons();
 </script>
 
 <MainLayout>

@@ -34,6 +34,7 @@
 		"@steeze-ui/heroicons": "^2.2.3",
 		"@steeze-ui/svelte-icon": "^1.5.0",
 		"@sveltejs/adapter-static": "^2.0.3",
+		"@tauri-apps/api": "^1.4.0",
 		"autoprefixer": "^10.4.14",
 		"postcss": "^8.4.27",
 		"tailwindcss": "^3.3.3"

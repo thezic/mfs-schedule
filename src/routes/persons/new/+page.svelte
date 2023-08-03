@@ -1,9 +1,16 @@
 <script lang="ts">
 	import MainLayout from '$lib/components/layouts/MainLayout.svelte';
+	import { invoke } from '@tauri-apps/api';
+
+	let name = '';
+
+	async function save() {
+		await invoke('create_person', { name });
+	}
 </script>
 
 <MainLayout>
-	<form>
+	<form on:submit={save}>
 		<div class="space-y-12 sm:space-y-16">
 			<div>
 				<h2 class="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
@@ -24,6 +31,7 @@
 								name="name"
 								id="name"
 								class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+								bind:value={name}
 							/>
 						</div>
 					</div>
