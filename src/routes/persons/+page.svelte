@@ -9,11 +9,8 @@
 	];
 
 	async function getPersons() {
-		const names = (await invoke('get_persons')) as string[];
-		persons = names.map((name: string, id: number) => ({
-			name,
-			id
-		}));
+		persons = await invoke('get_persons');
+		console.log(persons);
 	}
 
 	getPersons();

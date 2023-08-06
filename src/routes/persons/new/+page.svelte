@@ -5,7 +5,11 @@
 	let name = '';
 
 	async function save() {
-		await invoke('create_person', { name });
+		await invoke('create_person', {
+			newPerson: {
+				name
+			}
+		});
 	}
 </script>
 
