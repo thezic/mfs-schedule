@@ -1,6 +1,9 @@
 use sqlx::sqlite::SqlitePoolOptions;
 
-use crate::{config::Config, infrastructure::datastore::repository::person::PersonRepository};
+use crate::{
+    config::Config, core::services::Service,
+    infrastructure::datastore::repository::person::PersonRepository,
+};
 
 pub struct App {
     pub config: Config,
@@ -18,6 +21,11 @@ impl App {
             .unwrap();
 
         App { config, db_pool }
+    }
+
+    pub async fn service(&self) -> Service {
+        let repo = self.get_persons_repo().await;
+        Service::new(Box::new(repo))
     }
 
     pub async fn get_persons_repo(&self) -> PersonRepository {

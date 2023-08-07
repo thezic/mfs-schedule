@@ -1,15 +1,24 @@
 <script lang="ts">
-	import MainLayout from '$lib/components/layouts/MainLayout.svelte';
+	import { goto } from '$app/navigation';
 	import { invoke } from '@tauri-apps/api';
+	import MainLayout from '$lib/components/layouts/MainLayout.svelte';
+	import { Person } from '$lib/models/person';
 
 	let name = '';
 
 	async function save() {
-		await invoke('create_person', {
+		const data = await invoke('create_person', {
 			newPerson: {
 				name
 			}
 		});
+
+		const person = new Person();
+		Object.assign(person, data);
+
+		console.log('created person');
+		person.display();
+		goto(`${person.id}`);
 	}
 </script>
 

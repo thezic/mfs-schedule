@@ -16,14 +16,6 @@ impl PersonRepository {
     pub fn new(conn: TConn) -> PersonRepository {
         PersonRepository { conn }
     }
-
-    async fn get_by_id(&mut self, id: i64) -> Result<Person, anyhow::Error> {
-        // let mut conn = self.db.acquire().await?;
-        let person = sqlx::query_as!(Person, "SELECT * FROM persons WHERE id = $1", id)
-            .fetch_one(&mut *self.conn)
-            .await?;
-        Ok(person)
-    }
 }
 
 #[async_trait]
@@ -50,6 +42,21 @@ impl traits::PersonRepository for PersonRepository {
             .fetch_one(&mut *self.conn)
             .await?;
         // let person = self.get_by_id(id).await?;
+        Ok(person)
+    }
+
+    async fn delete(&mut self, id: i64) -> Result<(), anyhow::Error> {
+        sqlx::query!("DELETE FROM persons WHERE id = $1", id)
+            .execute(&mut *self.conn)
+            .await?;
+        Ok(())
+    }
+
+    async fn get_by_id(&mut self, id: i64) -> Result<Person, anyhow::Error> {
+        // let mut conn = self.db.acquire().await?;
+        let person = sqlx::query_as!(Person, "SELECT * FROM persons WHERE id = $1", id)
+            .fetch_one(&mut *self.conn)
+            .await?;
         Ok(person)
     }
 }
