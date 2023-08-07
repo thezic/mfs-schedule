@@ -5,13 +5,13 @@ use crate::{
     infrastructure::datastore::repository::person::PersonRepository,
 };
 
-pub struct App {
+pub struct AppState {
     pub config: Config,
     pub db_pool: sqlx::Pool<sqlx::Sqlite>,
 }
 
-impl App {
-    pub async fn init() -> App {
+impl AppState {
+    pub async fn init() -> AppState {
         let config = Config::load("mfs.config.toml");
 
         let db_pool = SqlitePoolOptions::new()
@@ -20,7 +20,7 @@ impl App {
             .await
             .unwrap();
 
-        App { config, db_pool }
+        AppState { config, db_pool }
     }
 
     pub async fn service(&self) -> Service {
@@ -32,4 +32,15 @@ impl App {
         let conn = self.db_pool.acquire().await.unwrap();
         PersonRepository::new(conn)
     }
+
+    pub async fn cleanup(&self) {
+        self.db_pool.close().await
+    }
 }
+
+// impl std::ops::Drop for AppState {
+//     fn drop(&mut self) {
+//         println!("Closing pool");
+//         async_std::task::block_on(self.db_pool.close());
+//     }
+// }
