@@ -3,12 +3,14 @@
 
 use std::env;
 
+use specta::collect_types;
+use tauri::Manager;
+use tauri::RunEvent;
+use tauri_specta::ts;
+
 use app::app::AppState;
 use app::core::entities::person::NewPerson;
 use app::core::entities::*;
-use app::core::traits::PersonRepository as PersonRepositoryTrait;
-use tauri::Manager;
-use tauri::RunEvent;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct MyError {
@@ -32,6 +34,7 @@ impl From<anyhow::Error> for MyError {
 }
 
 #[tauri::command]
+#[specta::specta]
 async fn create_person(
     app: tauri::State<'_, AppState>,
     new_person: NewPerson<'_>,
@@ -44,6 +47,7 @@ async fn create_person(
 }
 
 #[tauri::command]
+#[specta::specta]
 async fn get_persons(app: tauri::State<'_, AppState>) -> Result<Vec<person::Person>, MyError> {
     println!("path {}", &app.config.database.path);
 
@@ -51,21 +55,26 @@ async fn get_persons(app: tauri::State<'_, AppState>) -> Result<Vec<person::Pers
 }
 
 #[tauri::command]
-async fn delete_person(app: tauri::State<'_, AppState>, id: i64) -> Result<(), MyError> {
-    app.service().await.delete_person(id).await;
+#[specta::specta]
+async fn delete_person(app: tauri::State<'_, AppState>, id: i32) -> Result<(), MyError> {
+    app.service().await.delete_person(id.into()).await;
     Ok(())
 }
 
 #[tauri::command]
+#[specta::specta]
 async fn get_person_by_id(
     app: tauri::State<'_, AppState>,
-    id: i64,
+    id: i32,
 ) -> Result<person::Person, MyError> {
-    Ok(app.service().await.get_person_by_id(id).await)
+    Ok(app.service().await.get_person_by_id(id.into()).await)
 }
 
 #[async_std::main]
 async fn main() -> anyhow::Result<()> {
+    #[cfg(debug_assertions)]
+    export_bindings();
+
     let app_state = AppState::init().await;
     let app = tauri::Builder::default()
         .manage(app_state)
@@ -78,8 +87,8 @@ async fn main() -> anyhow::Result<()> {
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
-    app.run(|app_handle, e| {
-        if let RunEvent::Exit = e {
+    app.run(|app_handle, event| {
+        if let RunEvent::Exit = event {
             let state: tauri::State<'_, AppState> = app_handle.state();
             println!("Exit, cleanup");
             async_std::task::block_on(state.cleanup());
@@ -87,4 +96,12 @@ async fn main() -> anyhow::Result<()> {
     });
 
     Ok(())
+}
+
+fn export_bindings() {
+    ts::export(
+        collect_types![create_person, delete_person, get_person_by_id, get_persons],
+        "../src/bindings.ts",
+    )
+    .unwrap();
 }

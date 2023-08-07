@@ -1,10 +1,15 @@
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+use serde::{Deserialize, Serialize};
+use specta::Type;
+
+#[derive(Debug, Serialize, Deserialize, Type)]
 pub struct Person {
+    #[specta(type = i32)]
     pub id: i64,
     pub name: String,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Type)]
 pub struct NewPerson<'a> {
     pub name: &'a str,
 }
+
