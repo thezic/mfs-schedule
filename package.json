@@ -31,12 +31,16 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@floating-ui/dom": "^1.5.1",
 		"@steeze-ui/heroicons": "^2.2.3",
 		"@steeze-ui/svelte-icon": "^1.5.0",
 		"@sveltejs/adapter-static": "^2.0.3",
 		"@tauri-apps/api": "^1.4.0",
 		"autoprefixer": "^10.4.14",
+		"flowbite": "^1.8.1",
+		"flowbite-svelte": "^0.42.0",
 		"postcss": "^8.4.27",
+		"tailwind-merge": "^1.14.0",
 		"tailwindcss": "^3.3.3"
 	}
 }

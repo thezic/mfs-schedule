@@ -12,6 +12,30 @@ export const load = (() => {
 			assigneeId: 1,
 			extraInfo: 'Extra info',
 			scheduledTime: '2023-08-05T15:00Z'
+		},
+		{
+			id: 2,
+			place: 'Some place',
+			assigneeName: 'Simon Dahlberg',
+			assigneeId: 1,
+			extraInfo: 'Extra info',
+			scheduledTime: '2023-08-05T15:00Z'
+		},
+		{
+			id: 3,
+			place: 'Some place',
+			assigneeName: 'Simon Dahlberg',
+			assigneeId: 1,
+			extraInfo: 'Extra info',
+			scheduledTime: '2023-08-05T15:00Z'
+		},
+		{
+			id: 4,
+			place: 'Some place',
+			assigneeName: 'Simon Dahlberg',
+			assigneeId: 1,
+			extraInfo: 'Extra info',
+			scheduledTime: '2023-08-05T15:00Z'
 		}
 	] as MinistryEvent[];
 

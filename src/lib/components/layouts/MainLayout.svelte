@@ -32,9 +32,12 @@
 
 	<div class="pl-20">
 		<div
-			class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white shadow-sm px-8"
+			class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white shadow-sm px-8 justify-between"
 		>
-			<slot name="header" />
+			<slot name="header">
+				<div><slot name="header-left" /></div>
+				<div><slot name="header-right" /></div>
+			</slot>
 		</div>
 		<main>
 			<div class={cx($$slots.aside && 'xl:pl-96')}>
