@@ -2,6 +2,8 @@ import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
 import { getPersonById } from 'bindings';
 
+export const ssr = false;
+
 export const load: PageLoad = async ({ params }) => {
 	if (!browser) return;
 	// const { invoke } = await import('@tauri-apps/api');

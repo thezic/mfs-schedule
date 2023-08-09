@@ -26,5 +26,9 @@ export function getPersons() {
     return invoke()<Person[]>("get_persons")
 }
 
+export function updatePerson(person: Person) {
+    return invoke()<Person>("update_person", { person })
+}
+
 export type NewPerson = { name: string }
 export type Person = { id: number; name: string }
