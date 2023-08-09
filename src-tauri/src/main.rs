@@ -3,6 +3,7 @@
 
 use std::env;
 
+use app::core::entities::ministry_event::MinistryEvent;
 use app::core::errors::DataStoreError;
 use specta::collect_types;
 use tauri::Manager;
@@ -88,6 +89,14 @@ async fn update_person(
     Ok(app.service().await.update_person(person).await?)
 }
 
+#[tauri::command]
+#[specta::specta]
+async fn get_planned_events(
+    _app: tauri::State<'_, AppState>,
+) -> Result<Vec<MinistryEvent>, MyError> {
+    Ok(Vec::new())
+}
+
 #[async_std::main]
 async fn main() -> anyhow::Result<()> {
     #[cfg(debug_assertions)]
@@ -124,7 +133,8 @@ fn export_bindings() {
             delete_person,
             get_person_by_id,
             get_persons,
-            update_person
+            update_person,
+            get_planned_events,
         ],
         "../src/bindings.ts",
     )

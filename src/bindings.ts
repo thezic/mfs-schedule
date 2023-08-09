@@ -30,5 +30,10 @@ export function updatePerson(person: Person) {
     return invoke()<Person>("update_person", { person })
 }
 
+export function getPlannedEvents() {
+    return invoke()<MinistryEvent[]>("get_planned_events")
+}
+
 export type NewPerson = { name: string }
 export type Person = { id: number; name: string }
+export type MinistryEvent = { id: number; assigneeName: string; assigneeId: number | null; scheduledTime: string; place: string; extraInfo: string }

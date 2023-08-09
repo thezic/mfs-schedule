@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
-#[derive(Debug, Serialize, Deserialize, Type)]
+#[derive(Debug, Serialize, Deserialize, Type, sqlx::FromRow)]
 pub struct Person {
     #[specta(type = i32)]
     pub id: i64,
@@ -12,4 +12,3 @@ pub struct Person {
 pub struct NewPerson<'a> {
     pub name: &'a str,
 }
-
