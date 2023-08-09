@@ -1,14 +1,22 @@
+use super::entities::ministry_event::MinistryEvent;
 use super::entities::person::*;
 use super::errors::DataStoreError;
-use super::traits::PersonRepository;
+use super::traits::*;
 
 pub struct Service {
     person_repository: Box<dyn PersonRepository>,
+    event_repository: Box<dyn MinistryEventRepository>,
 }
 
 impl Service {
-    pub fn new(person_repository: Box<dyn PersonRepository>) -> Service {
-        Service { person_repository }
+    pub fn new(
+        person_repository: Box<dyn PersonRepository>,
+        event_repository: Box<dyn MinistryEventRepository>,
+    ) -> Service {
+        Service {
+            person_repository,
+            event_repository,
+        }
     }
     pub async fn create_person(
         &mut self,
@@ -31,5 +39,9 @@ impl Service {
 
     pub async fn update_person(&mut self, person: Person) -> Result<Person, DataStoreError> {
         self.person_repository.save(person).await
+    }
+
+    pub async fn get_planned_events(&mut self) -> Result<Vec<MinistryEvent>, DataStoreError> {
+        self.event_repository.get_all().await
     }
 }

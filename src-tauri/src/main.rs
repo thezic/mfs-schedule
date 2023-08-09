@@ -92,9 +92,9 @@ async fn update_person(
 #[tauri::command]
 #[specta::specta]
 async fn get_planned_events(
-    _app: tauri::State<'_, AppState>,
+    app: tauri::State<'_, AppState>,
 ) -> Result<Vec<MinistryEvent>, MyError> {
-    Ok(Vec::new())
+    Ok(app.service().await.get_planned_events().await?)
 }
 
 #[async_std::main]
@@ -111,6 +111,7 @@ async fn main() -> anyhow::Result<()> {
             get_person_by_id,
             delete_person,
             update_person,
+            get_planned_events,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");

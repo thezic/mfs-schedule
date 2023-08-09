@@ -1,13 +1,16 @@
-use sqlx::sqlite::SqlitePoolOptions;
+use async_mutex::Mutex;
+use sqlx::{sqlite::SqlitePoolOptions, Connection};
+use std::sync::Arc;
 
 use crate::{
     config::Config, core::services::Service,
+    infrastructure::datastore::repository::ministry_event::MinistryEventRepository,
     infrastructure::datastore::repository::person::PersonRepository,
 };
 
 pub struct AppState {
     pub config: Config,
-    pub db_pool: sqlx::Pool<sqlx::Sqlite>,
+    pub db_pool: Arc<Mutex<sqlx::Pool<sqlx::Sqlite>>>,
 }
 
 impl AppState {
@@ -20,21 +23,28 @@ impl AppState {
             .await
             .unwrap();
 
+        let db_pool = Arc::new(Mutex::new(db_pool));
+
         AppState { config, db_pool }
     }
 
     pub async fn service(&self) -> Service {
-        let repo = self.get_persons_repo().await;
-        Service::new(Box::new(repo))
+        let persons_repo = PersonRepository::new(self.db_pool.clone());
+        let ministry_event_repo = MinistryEventRepository::new(self.db_pool.clone());
+
+        Service::new(Box::new(persons_repo), Box::new(ministry_event_repo))
     }
 
-    pub async fn get_persons_repo(&self) -> PersonRepository {
-        let conn = self.db_pool.acquire().await.unwrap();
-        PersonRepository::new(conn)
-    }
+    // pub async fn get_persons_repo(&self) -> PersonRepository {
+    //     let conn = self.db_pool.acquire().await.unwrap();
+    //     PersonRepository::new(conn)
+    // }
 
     pub async fn cleanup(&self) {
-        self.db_pool.close().await
+        let pool = self.db_pool.lock().await;
+        (*pool).close().await
+
+        // self.db_pool.close().await
     }
 }
 

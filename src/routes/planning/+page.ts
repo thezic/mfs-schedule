@@ -1,43 +1,45 @@
-import type { MinistryEvent } from 'bindings';
+import { getPlannedEvents } from 'bindings';
 import type { PageLoad } from './$types';
 
 export const ssr = false;
 
-export const load = (() => {
-	const loadedData = [
-		{
-			id: 1,
-			place: 'Some place',
-			assigneeName: 'Simon Dahlberg',
-			assigneeId: 1,
-			extraInfo: 'Extra info',
-			scheduledTime: '2023-08-05T15:00Z'
-		},
-		{
-			id: 2,
-			place: 'Some place',
-			assigneeName: 'Simon Dahlberg',
-			assigneeId: 1,
-			extraInfo: 'Extra info',
-			scheduledTime: '2023-08-05T15:00Z'
-		},
-		{
-			id: 3,
-			place: 'Some place',
-			assigneeName: 'Simon Dahlberg',
-			assigneeId: 1,
-			extraInfo: 'Extra info',
-			scheduledTime: '2023-08-05T15:00Z'
-		},
-		{
-			id: 4,
-			place: 'Some place',
-			assigneeName: 'Simon Dahlberg',
-			assigneeId: 1,
-			extraInfo: 'Extra info',
-			scheduledTime: '2023-08-05T15:00Z'
-		}
-	] as MinistryEvent[];
+export const load = (async () => {
+	const loadedData = await getPlannedEvents();
+	console.log('planned', loadedData);
+	// const loadedData = [
+	// 	{
+	// 		id: 1,
+	// 		place: 'Some place',
+	// 		assigneeName: 'Simon Dahlberg',
+	// 		assigneeId: 1,
+	// 		extraInfo: 'Extra info',
+	// 		scheduledTime: '2023-08-05T15:00Z'
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		place: 'Some place',
+	// 		assigneeName: 'Simon Dahlberg',
+	// 		assigneeId: 1,
+	// 		extraInfo: 'Extra info',
+	// 		scheduledTime: '2023-08-05T15:00Z'
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		place: 'Some place',
+	// 		assigneeName: 'Simon Dahlberg',
+	// 		assigneeId: 1,
+	// 		extraInfo: 'Extra info',
+	// 		scheduledTime: '2023-08-05T15:00Z'
+	// 	},
+	// 	{
+	// 		id: 4,
+	// 		place: 'Some place',
+	// 		assigneeName: 'Simon Dahlberg',
+	// 		assigneeId: 1,
+	// 		extraInfo: 'Extra info',
+	// 		scheduledTime: '2023-08-05T15:00Z'
+	// 	}
+	// ] as MinistryEvent[];
 
 	return {
 		events: loadedData.map((event) => ({

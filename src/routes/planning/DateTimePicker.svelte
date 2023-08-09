@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { ButtonGroup, Input, Button, InputAddon } from 'flowbite-svelte';
-	import { Calendar, Clock } from '@steeze-ui/heroicons';
-	import { Icon } from '@steeze-ui/svelte-icon';
+	import { ButtonGroup, Input } from 'flowbite-svelte';
 
 	export let value: Date;
 
@@ -18,8 +16,6 @@
 <div class="flex gap-2 w-min">
 	<ButtonGroup class="flex-1" size="xs">
 		<Input bind:value={date} type="date" class="w-min" size="sm" />
-		<!--<InputAddon><Icon class="w-6 h-6" src={Calendar} /></InputAddon>-->
 		<Input bind:value={time} type="time" class="w-min" size="sm" />
-		<!--<InputAddon><Icon class="w-6 h-6" src={Clock} /></InputAddon>-->
 	</ButtonGroup>
 </div>
