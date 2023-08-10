@@ -1,5 +1,5 @@
 use async_mutex::Mutex;
-use sqlx::{sqlite::SqlitePoolOptions, Connection};
+use sqlx::sqlite::SqlitePoolOptions;
 use std::sync::Arc;
 
 use crate::{
@@ -35,22 +35,8 @@ impl AppState {
         Service::new(Box::new(persons_repo), Box::new(ministry_event_repo))
     }
 
-    // pub async fn get_persons_repo(&self) -> PersonRepository {
-    //     let conn = self.db_pool.acquire().await.unwrap();
-    //     PersonRepository::new(conn)
-    // }
-
     pub async fn cleanup(&self) {
         let pool = self.db_pool.lock().await;
         (*pool).close().await
-
-        // self.db_pool.close().await
     }
 }
-
-// impl std::ops::Drop for AppState {
-//     fn drop(&mut self) {
-//         println!("Closing pool");
-//         async_std::task::block_on(self.db_pool.close());
-//     }
-// }

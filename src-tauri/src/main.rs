@@ -106,8 +106,21 @@ async fn create_event(
 ) -> Result<MinistryEvent, MyError> {
     let event = app.service().create_event(&new_event).await?;
     Ok(event)
+}
 
-    // Ok(app.service().create_event(new_event).await?)
+#[tauri::command]
+#[specta::specta]
+async fn update_event(
+    app: tauri::State<'_, AppState>,
+    event: MinistryEvent,
+) -> Result<MinistryEvent, MyError> {
+    Ok(app.service().update_event(event).await?)
+}
+
+#[tauri::command]
+#[specta::specta]
+async fn delete_event(app: tauri::State<'_, AppState>, id: i32) -> Result<(), MyError> {
+    Ok(app.service().delete_event(id.into()).await?)
 }
 
 #[async_std::main]
@@ -126,6 +139,8 @@ async fn main() -> anyhow::Result<()> {
             update_person,
             get_planned_events,
             create_event,
+            update_event,
+            delete_event,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -151,6 +166,8 @@ fn export_bindings() {
             update_person,
             get_planned_events,
             create_event,
+            update_event,
+            delete_event,
         ],
         "../src/bindings.ts",
     )

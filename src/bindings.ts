@@ -38,6 +38,14 @@ export function createEvent(newEvent: NewMinistryEvent) {
     return invoke()<MinistryEvent>("create_event", { newEvent })
 }
 
+export function updateEvent(event: MinistryEvent) {
+    return invoke()<MinistryEvent>("update_event", { event })
+}
+
+export function deleteEvent(id: number) {
+    return invoke()<null>("delete_event", { id })
+}
+
 export type NewPerson = { name: string }
 export type NewMinistryEvent = { assigneeName: string; assigneeId: number | null; scheduledTime: string; place: string; extraInfo: string }
 export type Person = { id: number; name: string }

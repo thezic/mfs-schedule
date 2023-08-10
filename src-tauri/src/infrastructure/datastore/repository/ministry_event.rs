@@ -1,6 +1,6 @@
 use async_mutex::Mutex;
 use async_trait::async_trait;
-use chrono::prelude::*;
+
 use sqlx::FromRow;
 use std::sync::Arc;
 
@@ -27,7 +27,7 @@ struct MinistryEventRow {
 }
 
 impl From<chrono::ParseError> for DataStoreError {
-    fn from(error: chrono::ParseError) -> DataStoreError {
+    fn from(_error: chrono::ParseError) -> DataStoreError {
         DataStoreError::ParseError
     }
 }
@@ -47,8 +47,67 @@ impl TryFrom<MinistryEventRow> for MinistryEvent {
 }
 
 #[async_trait]
-impl traits::MinistryEventRepository for MinistryEventRepository {
-    async fn get_all(&mut self) -> Result<Vec<MinistryEvent>, DataStoreError> {
+impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventRepository {
+    async fn get_by_id(&self, id: i64) -> Result<MinistryEvent, DataStoreError> {
+        let event_row = sqlx::query_as!(
+            MinistryEventRow,
+            "SELECT * FROM ministry_events WHERE id = $1",
+            id
+        )
+        .fetch_one(&*self.conn.lock().await)
+        .await?;
+
+        let event = MinistryEvent::try_from(event_row)?;
+        Ok(event)
+    }
+
+    async fn delete(&mut self, id: i64) -> Result<(), DataStoreError> {
+        let conn = self.conn.lock().await;
+
+        let result = sqlx::query!("DELETE FROM ministry_events WHERE id = ?", id)
+            .execute(&*conn)
+            .await?;
+
+        if result.rows_affected() < 1 {
+            return Err(DataStoreError::EntityNotFound);
+        }
+
+        Ok(())
+    }
+
+    async fn save(&mut self, entity: MinistryEvent) -> Result<MinistryEvent, DataStoreError> {
+        {
+            let result = sqlx::query!(
+                r#"
+                UPDATE ministry_events
+                SET
+                      assignee_name = ?
+                    , assignee_id = ?
+                    , scheduled_time = ?
+                    , place = ?
+                    , extra_info = ?
+                WHERE
+                    id = ?
+                "#,
+                entity.assignee_name,
+                entity.assignee_id,
+                entity.scheduled_time,
+                entity.place,
+                entity.extra_info,
+                entity.id
+            )
+            .execute(&*self.conn.lock().await)
+            .await?;
+
+            if result.rows_affected() <= 1 {
+                return Err(DataStoreError::EntityNotFound);
+            }
+        }
+
+        Ok(self.get_by_id(entity.id).await?)
+    }
+
+    async fn get_all(&self) -> Result<Vec<MinistryEvent>, DataStoreError> {
         let result = sqlx::query!(
             r#"
             SELECT 
@@ -79,37 +138,32 @@ impl traits::MinistryEventRepository for MinistryEventRepository {
         &mut self,
         new_event: &NewMinistryEvent,
     ) -> Result<MinistryEvent, DataStoreError> {
-        let conn = self.conn.lock().await;
-        let id = sqlx::query!(
-            r#"
-            INSERT INTO ministry_events (
-                assignee_name
-                , assignee_id
-                , scheduled_time
-                , place
-                , extra_info
+        let id;
+        {
+            id = sqlx::query!(
+                r#"
+                INSERT INTO ministry_events (
+                    assignee_name
+                    , assignee_id
+                    , scheduled_time
+                    , place
+                    , extra_info
+                )
+                VALUES (?, ?, ?, ?, ?)
+                "#,
+                new_event.assignee_name,
+                new_event.assignee_id,
+                new_event.scheduled_time,
+                new_event.place,
+                new_event.extra_info
             )
-            VALUES (?, ?, ?, ?, ?)
-            "#,
-            new_event.assignee_name,
-            new_event.assignee_id,
-            new_event.scheduled_time,
-            new_event.place,
-            new_event.extra_info
-        )
-        .execute(&*conn)
-        .await?
-        .last_insert_rowid();
+            .execute(&*self.conn.lock().await)
+            .await?
+            .last_insert_rowid();
+        }
 
-        let event_row = sqlx::query_as!(
-            MinistryEventRow,
-            "SELECT * FROM ministry_events WHERE id = $1",
-            id
-        )
-        .fetch_one(&*conn)
-        .await?;
-
-        let event = MinistryEvent::try_from(event_row)?;
-        Ok(event)
+        Ok(self.get_by_id(id).await?)
     }
 }
+
+impl traits::MinistryEventRepository for MinistryEventRepository {}

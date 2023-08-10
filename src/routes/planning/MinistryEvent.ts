@@ -16,4 +16,15 @@ export class MinistryEvent {
 		(this.assigneeName = fromData.assigneeName),
 			(this.assigneeId = fromData.assigneeId ?? undefined);
 	}
+
+	asDto(): MinistryEventDto {
+		return {
+			id: this.id,
+			assigneeId: this.assigneeId ?? null,
+			place: this.place,
+			assigneeName: this.assigneeName,
+			extraInfo: this.extraInfo,
+			scheduledTime: this.scheduledTime.toISOString()
+		};
+	}
 }

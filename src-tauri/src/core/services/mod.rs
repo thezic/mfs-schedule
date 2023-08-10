@@ -51,4 +51,15 @@ impl Service {
     ) -> Result<MinistryEvent, DataStoreError> {
         self.event_repository.create(new_event).await
     }
+
+    pub async fn update_event(
+        &mut self,
+        event: MinistryEvent,
+    ) -> Result<MinistryEvent, DataStoreError> {
+        self.event_repository.save(event).await
+    }
+
+    pub async fn delete_event(&mut self, id: i64) -> Result<(), DataStoreError> {
+        self.event_repository.delete(id).await
+    }
 }
