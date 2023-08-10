@@ -15,4 +15,15 @@ pub struct MinistryEvent {
     pub extra_info: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct NewMinistryEvent {
+    pub assignee_name: String,
+    #[specta(type = Option<i32>)]
+    pub assignee_id: Option<i64>,
+    pub scheduled_time: DateTime<Utc>,
+    pub place: String,
+    pub extra_info: String,
+}
+
 // impl From<

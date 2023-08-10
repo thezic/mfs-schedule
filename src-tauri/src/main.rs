@@ -4,6 +4,7 @@
 use std::env;
 
 use app::core::entities::ministry_event::MinistryEvent;
+use app::core::entities::ministry_event::NewMinistryEvent;
 use app::core::errors::DataStoreError;
 use specta::collect_types;
 use tauri::Manager;
@@ -53,7 +54,7 @@ async fn create_person(
     println!("Current working directory: {}", dir.display());
     println!("Create person: {:#?}", new_person);
 
-    Ok(app.service().await.create_person(&new_person).await?)
+    Ok(app.service().create_person(&new_person).await?)
 }
 
 #[tauri::command]
@@ -61,13 +62,13 @@ async fn create_person(
 async fn get_persons(app: tauri::State<'_, AppState>) -> Result<Vec<person::Person>, MyError> {
     println!("path {}", &app.config.database.path);
 
-    Ok(app.service().await.get_persons().await?)
+    Ok(app.service().get_persons().await?)
 }
 
 #[tauri::command]
 #[specta::specta]
 async fn delete_person(app: tauri::State<'_, AppState>, id: i32) -> Result<(), MyError> {
-    app.service().await.delete_person(id.into()).await?;
+    app.service().delete_person(id.into()).await?;
     Ok(())
 }
 
@@ -77,7 +78,7 @@ async fn get_person_by_id(
     app: tauri::State<'_, AppState>,
     id: i32,
 ) -> Result<person::Person, MyError> {
-    Ok(app.service().await.get_person_by_id(id.into()).await?)
+    Ok(app.service().get_person_by_id(id.into()).await?)
 }
 
 #[tauri::command]
@@ -86,7 +87,7 @@ async fn update_person(
     app: tauri::State<'_, AppState>,
     person: person::Person,
 ) -> Result<person::Person, MyError> {
-    Ok(app.service().await.update_person(person).await?)
+    Ok(app.service().update_person(person).await?)
 }
 
 #[tauri::command]
@@ -94,7 +95,19 @@ async fn update_person(
 async fn get_planned_events(
     app: tauri::State<'_, AppState>,
 ) -> Result<Vec<MinistryEvent>, MyError> {
-    Ok(app.service().await.get_planned_events().await?)
+    Ok(app.service().get_planned_events().await?)
+}
+
+#[tauri::command]
+#[specta::specta]
+async fn create_event(
+    app: tauri::State<'_, AppState>,
+    new_event: NewMinistryEvent,
+) -> Result<MinistryEvent, MyError> {
+    let event = app.service().create_event(&new_event).await?;
+    Ok(event)
+
+    // Ok(app.service().create_event(new_event).await?)
 }
 
 #[async_std::main]
@@ -112,6 +125,7 @@ async fn main() -> anyhow::Result<()> {
             delete_person,
             update_person,
             get_planned_events,
+            create_event,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -136,6 +150,7 @@ fn export_bindings() {
             get_persons,
             update_person,
             get_planned_events,
+            create_event,
         ],
         "../src/bindings.ts",
     )

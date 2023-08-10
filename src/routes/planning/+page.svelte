@@ -14,17 +14,36 @@
 	import { Trash } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import DateTimePicker from './DateTimePicker.svelte';
+	import { createEvent as createMinistryEvent } from 'bindings';
+	import { MinistryEvent } from './MinistryEvent';
 
 	// import { type MinistryEvent } from 'bindings';
 	export let data: PageData;
+	let events = data.events.map((event) => new MinistryEvent(event));
 
-	console.log(data.events);
+	async function createEvent() {
+		const lastEvent = events.length ? events[data.events.length - 1] : undefined;
+		const scheduledTime =
+			lastEvent?.scheduledTime.toISOString() ?? new Date(Date.now()).toISOString();
+
+		const newEvent = await createMinistryEvent({
+			place: '',
+			scheduledTime,
+			extraInfo: '',
+			assigneeName: '',
+			assigneeId: null
+		});
+
+		console.log(newEvent);
+		events.push(new MinistryEvent(newEvent));
+		events = events;
+	}
 </script>
 
 <MainLayout>
 	<div slot="header-right" class="flex justify-between gap-4">
 		<Button>Add from schedule</Button>
-		<Button>Add meeting</Button>
+		<Button on:click={createEvent}>Add meeting</Button>
 	</div>
 	<div>
 		<Table>
@@ -37,7 +56,7 @@
 				<TableHeadCell />
 			</TableHead>
 			<TableBody>
-				{#each data.events as event (event.id)}
+				{#each events as event (event.id)}
 					<TableBodyRow>
 						<TableBodyCell>
 							<DateTimePicker bind:value={event.scheduledTime} />

@@ -1,4 +1,4 @@
-import { getPlannedEvents } from 'bindings';
+import { getPlannedEvents, type MinistryEvent } from 'bindings';
 import type { PageLoad } from './$types';
 
 export const ssr = false;
@@ -6,6 +6,9 @@ export const ssr = false;
 export const load = (async () => {
 	const loadedData = await getPlannedEvents();
 	console.log('planned', loadedData);
+	return {
+		events: loadedData as MinistryEvent[]
+	};
 	// const loadedData = [
 	// 	{
 	// 		id: 1,
@@ -41,14 +44,14 @@ export const load = (async () => {
 	// 	}
 	// ] as MinistryEvent[];
 
-	return {
-		events: loadedData.map((event) => ({
-			id: event.id,
-			scheduledTime: new Date(Date.parse(event.scheduledTime)),
-			place: event.place,
-			extraInfo: event.extraInfo,
-			assigneeName: event.assigneeName,
-			assigneeId: event.assigneeId
-		}))
-	};
+	// return {
+	// 	events: loadedData.map((event) => ({
+	// 		id: event.id,
+	// 		scheduledTime: new Date(Date.parse(event.scheduledTime)),
+	// 		place: event.place,
+	// 		extraInfo: event.extraInfo,
+	// 		assigneeName: event.assigneeName,
+	// 		assigneeId: event.assigneeId
+	// 	}))
+	// };
 }) satisfies PageLoad;

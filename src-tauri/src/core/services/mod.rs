@@ -1,4 +1,4 @@
-use super::entities::ministry_event::MinistryEvent;
+use super::entities::ministry_event::*;
 use super::entities::person::*;
 use super::errors::DataStoreError;
 use super::traits::*;
@@ -43,5 +43,12 @@ impl Service {
 
     pub async fn get_planned_events(&mut self) -> Result<Vec<MinistryEvent>, DataStoreError> {
         self.event_repository.get_all().await
+    }
+
+    pub async fn create_event(
+        &mut self,
+        new_event: &NewMinistryEvent,
+    ) -> Result<MinistryEvent, DataStoreError> {
+        self.event_repository.create(new_event).await
     }
 }

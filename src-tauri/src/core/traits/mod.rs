@@ -16,4 +16,8 @@ pub trait PersonRepository: std::marker::Send {
 #[async_trait]
 pub trait MinistryEventRepository: std::marker::Send {
     async fn get_all(&mut self) -> Result<Vec<MinistryEvent>, DataStoreError>;
+    async fn create(
+        &mut self,
+        new_event: &NewMinistryEvent,
+    ) -> Result<MinistryEvent, DataStoreError>;
 }

@@ -6,6 +6,9 @@ pub enum DataStoreError {
     EntityNotFound,
     #[error("Unexpected database error")]
     DbError(#[from] sqlx::error::Error),
+
+    #[error("Error while parsing value from database")]
+    ParseError,
     #[error("Unknown data store error")]
     Unknown,
 }

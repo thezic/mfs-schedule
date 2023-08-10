@@ -34,6 +34,11 @@ export function getPlannedEvents() {
     return invoke()<MinistryEvent[]>("get_planned_events")
 }
 
+export function createEvent(newEvent: NewMinistryEvent) {
+    return invoke()<MinistryEvent>("create_event", { newEvent })
+}
+
 export type NewPerson = { name: string }
+export type NewMinistryEvent = { assigneeName: string; assigneeId: number | null; scheduledTime: string; place: string; extraInfo: string }
 export type Person = { id: number; name: string }
 export type MinistryEvent = { id: number; assigneeName: string; assigneeId: number | null; scheduledTime: string; place: string; extraInfo: string }

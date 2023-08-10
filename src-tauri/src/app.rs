@@ -28,7 +28,7 @@ impl AppState {
         AppState { config, db_pool }
     }
 
-    pub async fn service(&self) -> Service {
+    pub fn service(&self) -> Service {
         let persons_repo = PersonRepository::new(self.db_pool.clone());
         let ministry_event_repo = MinistryEventRepository::new(self.db_pool.clone());
 
