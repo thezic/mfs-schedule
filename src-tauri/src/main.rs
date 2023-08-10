@@ -60,8 +60,6 @@ async fn create_person(
 #[tauri::command]
 #[specta::specta]
 async fn get_persons(app: tauri::State<'_, AppState>) -> Result<Vec<person::Person>, MyError> {
-    println!("path {}", &app.config.database.path);
-
     Ok(app.service().get_persons().await?)
 }
 
@@ -128,9 +126,12 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(debug_assertions)]
     export_bindings();
 
-    let app_state = AppState::init().await;
     let app = tauri::Builder::default()
-        .manage(app_state)
+        .setup(|app| {
+            let app_state = async_std::task::block_on(AppState::init(app));
+            app.manage(app_state);
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             create_person,
             get_persons,

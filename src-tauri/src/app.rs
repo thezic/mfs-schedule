@@ -14,14 +14,38 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub async fn init() -> AppState {
-        let config = Config::load("mfs.config.toml");
+    pub async fn init(app: &tauri::App) -> AppState {
+        let config = Config::load("mfs.config.toml", app);
+
+        println!("Using config {:#?}", config);
+
+        let path = std::path::Path::new(&config.database.path);
+
+        if !path.exists() {
+            println!("Creating empty database at: {}", &config.database.path);
+            if let Some(db_folder) = path.parent() {
+                std::fs::create_dir_all(db_folder).unwrap_or_else(|err| {
+                    panic!(
+                        "Unable to create data folder at {}. ({})",
+                        &db_folder.display(),
+                        err
+                    )
+                });
+            }
+            std::fs::File::create(&config.database.path).expect("Unable to create database");
+        }
 
         let db_pool = SqlitePoolOptions::new()
             .max_connections(1)
             .connect(&config.database.path)
             .await
             .unwrap();
+
+        println!("pool ready, running migrations (if needed)");
+        sqlx::migrate!()
+            .run(&db_pool)
+            .await
+            .unwrap_or_else(|err| panic!("Unable to migrate data: {err}"));
 
         let db_pool = Arc::new(Mutex::new(db_pool));
 
