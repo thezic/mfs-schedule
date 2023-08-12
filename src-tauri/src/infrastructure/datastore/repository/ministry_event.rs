@@ -37,19 +37,19 @@ impl From<chrono::ParseError> for DataStoreError {
     }
 }
 
+fn parse_time(v: &str) -> Result<NaiveTime, DataStoreError> {
+    NaiveTime::parse_from_str(v, "%H:%M").map_err(|error| DataStoreError::ParseError {
+        value: v.to_string(),
+        error: error.to_string(),
+    })
+}
+
 impl TryFrom<MinistryEventRow> for MinistryEvent {
     type Error = DataStoreError;
     fn try_from(value: MinistryEventRow) -> Result<Self, Self::Error> {
-        // TODO: Ugh! Refactor to make this mess readable
-        let time: Result<Option<chrono::NaiveTime>, Self::Error> = match value.time {
-            Some(v) => match chrono::NaiveTime::parse_from_str(&v, "%H:%M") {
-                Ok(parsed_value) => Ok(Some(parsed_value)),
-                Err(error) => Err(DataStoreError::ParseError {
-                    value: v.clone(),
-                    error: error.to_string(),
-                }),
-            },
-            None => Ok(None),
+        let time = match value.time {
+            Some(time_string) => Some(parse_time(&time_string)?),
+            None => None,
         };
 
         Ok(MinistryEvent {
@@ -59,7 +59,7 @@ impl TryFrom<MinistryEventRow> for MinistryEvent {
             extra_info: value.extra_info,
             place: value.place,
             date: value.date.parse()?,
-            time: time?,
+            time,
         })
     }
 }
