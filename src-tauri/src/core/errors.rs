@@ -7,8 +7,8 @@ pub enum DataStoreError {
     #[error("Unexpected database error")]
     DbError(#[from] sqlx::error::Error),
 
-    #[error("Error while parsing value from database")]
-    ParseError,
+    #[error("Error while parsing value `{value:?}` from database: {error:?}")]
+    ParseError { value: String, error: String },
     #[error("Unknown data store error")]
     Unknown,
 }

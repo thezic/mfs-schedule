@@ -10,7 +10,9 @@ pub struct MinistryEvent {
     pub assignee_name: String,
     #[specta(type = Option<i32>)]
     pub assignee_id: Option<i64>,
-    pub scheduled_time: DateTime<Utc>,
+    // pub scheduled_time: DateTime<Utc>,
+    pub date: NaiveDate,
+    pub time: Option<NaiveTime>,
     pub place: String,
     pub extra_info: String,
 }
@@ -21,7 +23,9 @@ pub struct NewMinistryEvent {
     pub assignee_name: String,
     #[specta(type = Option<i32>)]
     pub assignee_id: Option<i64>,
-    pub scheduled_time: DateTime<Utc>,
+    // pub scheduled_time: DateTime<Utc>,
+    pub date: NaiveDate,
+    pub time: Option<NaiveTime>,
     pub place: String,
     pub extra_info: String,
 }

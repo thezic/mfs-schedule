@@ -1,28 +1,33 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { ButtonGroup, Input } from 'flowbite-svelte';
+	import { formatDate } from './MinistryEvent';
 
-	export let value: Date;
+	// export let value: Date;
+	export let date: Date;
+	export let time: string | undefined;
 
 	const dispatch = createEventDispatcher();
 
 	function change() {
-		dispatch('change', value);
+		console.log({ date, time });
+		dispatch('change', { date, time });
 	}
 
-	function pad(n: number, padding = 2): string {
-		return n.toString().padStart(padding, '0');
+	let _date = formatDate(date);
+	let _time = time ?? '';
+
+	$: date = new Date(Date.parse(_date));
+	$: {
+		const parts = _time?.split(':');
+		if (parts) parts[2] = '00';
+		time = parts?.join(':');
 	}
-
-	let date = `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
-	let time = `${pad(value.getHours())}:${pad(value.getMinutes())}`;
-
-	$: value = new Date(Date.parse(`${date}T${time}`));
 </script>
 
 <div class="flex gap-2 w-min">
 	<ButtonGroup class="flex-1" size="xs">
-		<Input bind:value={date} type="date" class="w-min" size="sm" on:change={change} />
-		<Input bind:value={time} type="time" class="w-min" size="sm" on:change={change} />
+		<Input bind:value={_date} type="date" class="w-min" size="sm" on:change={change} />
+		<Input bind:value={_time} type="time" class="w-min" size="sm" on:change={change} />
 	</ButtonGroup>
 </div>

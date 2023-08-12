@@ -1,6 +1,7 @@
 use async_mutex::Mutex;
 use async_trait::async_trait;
 
+use chrono::{NaiveDate, NaiveTime};
 use sqlx::FromRow;
 use std::sync::Arc;
 
@@ -16,33 +17,65 @@ impl MinistryEventRepository {
     }
 }
 
-#[derive(FromRow)]
+#[derive(Debug, FromRow)]
 struct MinistryEventRow {
     id: i64,
     assignee_name: String,
     assignee_id: Option<i64>,
-    scheduled_time: String,
+    date: String,
+    time: Option<String>,
     place: String,
     extra_info: String,
 }
 
 impl From<chrono::ParseError> for DataStoreError {
-    fn from(_error: chrono::ParseError) -> DataStoreError {
-        DataStoreError::ParseError
+    fn from(error: chrono::ParseError) -> DataStoreError {
+        DataStoreError::ParseError {
+            error: error.to_string(),
+            value: "(Unknown)".to_string(),
+        }
     }
 }
 
 impl TryFrom<MinistryEventRow> for MinistryEvent {
     type Error = DataStoreError;
     fn try_from(value: MinistryEventRow) -> Result<Self, Self::Error> {
+        // TODO: Ugh! Refactor to make this mess readable
+        let time: Result<Option<chrono::NaiveTime>, Self::Error> = match value.time {
+            Some(v) => match chrono::NaiveTime::parse_from_str(&v, "%H:%M") {
+                Ok(parsed_value) => Ok(Some(parsed_value)),
+                Err(error) => Err(DataStoreError::ParseError {
+                    value: v.clone(),
+                    error: error.to_string(),
+                }),
+            },
+            None => Ok(None),
+        };
+
         Ok(MinistryEvent {
             id: value.id,
             assignee_name: value.assignee_name,
             assignee_id: value.assignee_id,
             extra_info: value.extra_info,
             place: value.place,
-            scheduled_time: value.scheduled_time.parse()?,
+            date: value.date.parse()?,
+            time: time?,
         })
+    }
+}
+
+struct MinistryEventRowVec(Vec<MinistryEventRow>);
+
+impl TryFrom<MinistryEventRowVec> for Vec<MinistryEvent> {
+    type Error = DataStoreError;
+    fn try_from(value: MinistryEventRowVec) -> Result<Self, Self::Error> {
+        let result: Result<Vec<_>, _> = value
+            .0
+            .into_iter()
+            .map(|row| -> Result<MinistryEvent, Self::Error> { MinistryEvent::try_from(row) })
+            .collect();
+
+        result
     }
 }
 
@@ -77,13 +110,16 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
 
     async fn save(&mut self, entity: MinistryEvent) -> Result<MinistryEvent, DataStoreError> {
         {
+            let time = entity.time.map(|t| t.format("%H:%M").to_string());
+
             let result = sqlx::query!(
                 r#"
                 UPDATE ministry_events
                 SET
                       assignee_name = ?
                     , assignee_id = ?
-                    , scheduled_time = ?
+                    , date = ?
+                    , time = ?
                     , place = ?
                     , extra_info = ?
                 WHERE
@@ -91,7 +127,8 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
                 "#,
                 entity.assignee_name,
                 entity.assignee_id,
-                entity.scheduled_time,
+                entity.date,
+                time,
                 entity.place,
                 entity.extra_info,
                 entity.id
@@ -99,7 +136,7 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
             .execute(&*self.conn.lock().await)
             .await?;
 
-            if result.rows_affected() <= 1 {
+            if result.rows_affected() < 1 {
                 return Err(DataStoreError::EntityNotFound);
             }
         }
@@ -108,30 +145,16 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
     }
 
     async fn get_all(&self) -> Result<Vec<MinistryEvent>, DataStoreError> {
-        let result = sqlx::query!(
+        let result = sqlx::query_as!(
+            MinistryEventRow,
             r#"
-            SELECT 
-                id
-                , assignee_name
-                , assignee_id
-                , scheduled_time
-                , place
-                , extra_info 
-            FROM ministry_events
+            SELECT * FROM ministry_events
             "#
         )
-        .map(|row| MinistryEvent {
-            id: row.id,
-            assignee_id: row.assignee_id,
-            extra_info: row.extra_info,
-            place: row.place,
-            assignee_name: row.assignee_name,
-            scheduled_time: row.scheduled_time.parse().unwrap(),
-        })
         .fetch_all(&*self.conn.lock().await)
         .await?;
 
-        Ok(result)
+        Ok(MinistryEventRowVec(result).try_into()?)
     }
 
     async fn create(
@@ -145,15 +168,17 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
                 INSERT INTO ministry_events (
                     assignee_name
                     , assignee_id
-                    , scheduled_time
+                    , date
+                    , time
                     , place
                     , extra_info
                 )
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
                 "#,
                 new_event.assignee_name,
                 new_event.assignee_id,
-                new_event.scheduled_time,
+                new_event.date,
+                new_event.time,
                 new_event.place,
                 new_event.extra_info
             )

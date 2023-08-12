@@ -19,7 +19,7 @@
 		deleteEvent as deleteMinistryEvent,
 		updateEvent
 	} from 'bindings';
-	import { MinistryEvent } from './MinistryEvent';
+	import { MinistryEvent, formatDate } from './MinistryEvent';
 
 	// import { type MinistryEvent } from 'bindings';
 	export let data: PageData;
@@ -27,35 +27,35 @@
 
 	async function createEvent() {
 		const lastEvent = events.length ? events[data.events.length - 1] : undefined;
-		const scheduledTime =
-			lastEvent?.scheduledTime.toISOString() ?? new Date(Date.now()).toISOString();
+		const date = lastEvent ? formatDate(lastEvent.date) : formatDate(new Date(Date.now()));
 
 		const newEvent = await createMinistryEvent({
 			place: '',
-			scheduledTime,
+			date,
+			time: null,
 			extraInfo: '',
 			assigneeName: '',
 			assigneeId: null
 		});
 
-		console.log(newEvent);
 		events.push(new MinistryEvent(newEvent));
 		events = events;
 	}
 
 	async function deleteEvent(eventToDelete: MinistryEvent) {
-		console.log('delete event ', eventToDelete);
 		await deleteMinistryEvent(eventToDelete.id);
 
 		events = events.filter((event) => event.id !== eventToDelete.id);
-		console.log('event was deleted', eventToDelete);
 	}
 
 	async function save(event: MinistryEvent) {
-		const updatedData = await updateEvent(event.asDto());
-
-		events.splice(events.indexOf(event), 1, new MinistryEvent(updatedData));
-		events = events;
+		try {
+			const updatedData = await updateEvent(event.asDto());
+			events.splice(events.indexOf(event), 1, new MinistryEvent(updatedData));
+			events = events;
+		} catch (error) {
+			console.error(error);
+		}
 	}
 </script>
 
@@ -78,10 +78,14 @@
 				{#each events as event (event.id)}
 					<TableBodyRow>
 						<TableBodyCell>
-							<DateTimePicker bind:value={event.scheduledTime} on:change={() => save(event)} />
+							<DateTimePicker
+								bind:date={event.date}
+								bind:time={event.time}
+								on:change={() => save(event)}
+							/>
 						</TableBodyCell>
 						<TableBodyCell
-							>{event.scheduledTime.toLocaleDateString(navigator.language, {
+							>{event.date.toLocaleDateString(navigator.language, {
 								weekday: 'long'
 							})}</TableBodyCell
 						>
