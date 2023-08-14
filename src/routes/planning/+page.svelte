@@ -13,17 +13,23 @@
 	import MainLayout from '$lib/components/layouts/MainLayout.svelte';
 	import { Trash } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
-	import DateTimePicker from './DateTimePicker.svelte';
+
 	import {
 		createEvent as createMinistryEvent,
 		deleteEvent as deleteMinistryEvent,
 		updateEvent
 	} from 'bindings';
-	import { MinistryEvent, formatDate } from './MinistryEvent';
 
-	// import { type MinistryEvent } from 'bindings';
+	import DateTimePicker from './DateTimePicker.svelte';
+	import PersonSelect from './PersonSelect.svelte';
+
+	import { MinistryEvent } from '$lib/models/MinistryEvent';
+	import { Person } from '$lib/models/Person';
+	import { formatDate } from '$lib/utils/date';
+
 	export let data: PageData;
 	let events = data.events.map((event) => new MinistryEvent(event));
+	let persons = data.persons.map((person) => new Person(person));
 
 	async function createEvent() {
 		const lastEvent = events.length ? events[data.events.length - 1] : undefined;
@@ -50,6 +56,7 @@
 
 	async function save(event: MinistryEvent) {
 		try {
+			console.log('Saving', event);
 			const updatedData = await updateEvent(event.asDto());
 			events.splice(events.indexOf(event), 1, new MinistryEvent(updatedData));
 			events = events;
@@ -89,13 +96,14 @@
 								weekday: 'long'
 							})}</TableBodyCell
 						>
-						<TableBodyCell
-							><Input
-								bind:value={event.assigneeName}
-								size="sm"
-								on:blur={() => save(event)}
-							/></TableBodyCell
-						>
+						<TableBodyCell>
+							<PersonSelect
+								bind:name={event.assigneeName}
+								bind:personId={event.assigneeId}
+								{persons}
+								on:change={() => save(event)}
+							/>
+						</TableBodyCell>
 						<TableBodyCell
 							><Input
 								bind:value={event.place}

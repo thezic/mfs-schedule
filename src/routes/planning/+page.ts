@@ -1,12 +1,13 @@
-import { getPlannedEvents, type MinistryEvent } from 'bindings';
+import { getPlannedEvents, getPersons } from 'bindings';
 import type { PageLoad } from './$types';
 
 export const ssr = false;
 
 export const load = (async () => {
-	const loadedData = await getPlannedEvents();
-	console.log('planned', loadedData);
+	const [events, persons] = await Promise.all([getPlannedEvents(), getPersons()]);
+
 	return {
-		events: loadedData as MinistryEvent[]
+		events,
+		persons
 	};
 }) satisfies PageLoad;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { ButtonGroup, Input } from 'flowbite-svelte';
-	import { formatDate } from './MinistryEvent';
+	import { formatDate } from '$lib/utils/date';
 
 	// export let value: Date;
 	export let date: Date;
@@ -19,9 +19,15 @@
 
 	$: date = new Date(Date.parse(_date));
 	$: {
-		const parts = _time?.split(':');
-		if (parts) parts[2] = '00';
-		time = parts?.join(':');
+		const parts = _time.split(':');
+		if (parts.length > 1) {
+			parts[2] = '00';
+			time = parts?.join(':');
+		} else {
+			time = undefined;
+		}
+
+		console.log(time);
 	}
 </script>
 

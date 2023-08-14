@@ -1,3 +1,4 @@
+import { formatDate } from '$lib/utils/date';
 import type { MinistryEvent as MinistryEventDto } from 'bindings';
 
 export class Time {
@@ -18,11 +19,6 @@ export class Time {
 
 		return new Time(hour, minute);
 	}
-}
-
-export function formatDate(date: Date) {
-	// Take Timezone offset into account, as toISOString returns a string in UTC time
-	return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0];
 }
 
 export class MinistryEvent {

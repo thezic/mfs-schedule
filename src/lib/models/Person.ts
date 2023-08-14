@@ -1,8 +1,13 @@
-export class Person {
-	id = 0;
-	name = '';
+import type { Person as PersonDto } from 'bindings';
 
-	display() {
-		console.log(this);
+export class Person {
+	id: number;
+	name = '';
+	comment = '';
+
+	constructor(fromDto: PersonDto) {
+		this.id = fromDto.id;
+		this.name = fromDto.name;
+		this.comment = fromDto.comment;
 	}
 }
