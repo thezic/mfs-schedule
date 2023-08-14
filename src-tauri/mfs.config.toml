@@ -1,2 +1,2 @@
 [database]
-path = "sqlite:database.sqlite"
+path = "database.sqlite"

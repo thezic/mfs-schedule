@@ -1,15 +1,12 @@
 <script lang="ts">
 	import MainLayout from '$lib/components/layouts/MainLayout.svelte';
-	import Button from '$lib/components/atoms/Button.svelte';
-	import { invoke } from '@tauri-apps/api';
+	import { Button } from 'flowbite-svelte';
+	import { type Person, getPersons as getPersonsFromServer } from 'bindings';
 
-	let persons = [
-		{ id: 1, name: 'Simon Dahlberg' },
-		{ id: 2, name: 'Karl Johansson' }
-	];
+	let persons: Person[] = [];
 
 	async function getPersons() {
-		persons = await invoke('get_persons');
+		persons = await getPersonsFromServer();
 		console.log(persons);
 	}
 
@@ -17,13 +14,8 @@
 </script>
 
 <MainLayout>
-	<div slot="header" class="flex-none">
-		<a
-			href="/persons/new"
-			class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-		>
-			Add user</a
-		>
+	<div slot="header-right" class="flex-none">
+		<Button href="/persons/new">Add user</Button>
 	</div>
 	<div class="px-8">
 		<div class="flex items-center">
@@ -44,17 +36,8 @@
 									class="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900 pl-3">Name</th
 								>
 								<th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-									>Title</th
+									>Comment</th
 								>
-								<th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-									>Email</th
-								>
-								<th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-									>Role</th
-								>
-								<th scope="col" class="relative py-3.5 pl-3 pr-3">
-									<span class="sr-only">Edit</span>
-								</th>
 							</tr>
 						</thead>
 						<tbody class="bg-white">
@@ -63,13 +46,8 @@
 									<td class="whitespace-nowrap py-4 pr-3 text-sm font-medium text-gray-900 pl-3"
 										>{person.name}</td
 									>
-									<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
-										>Front-end Developer</td
+									<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{person.comment}</td
 									>
-									<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"
-										>lindsay.walton@example.com</td
-									>
-									<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Member</td>
 									<td
 										class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3"
 									>

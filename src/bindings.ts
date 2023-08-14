@@ -46,7 +46,7 @@ export function deleteEvent(id: number) {
     return invoke()<null>("delete_event", { id })
 }
 
-export type NewPerson = { name: string }
-export type Person = { id: number; name: string }
+export type NewPerson = { name: string; comment: string }
+export type Person = { id: number; name: string; comment: string }
 export type NewMinistryEvent = { assigneeName: string; assigneeId: number | null; date: string; time: string | null; place: string; extraInfo: string }
 export type MinistryEvent = { id: number; assigneeName: string; assigneeId: number | null; date: string; time: string | null; place: string; extraInfo: string }

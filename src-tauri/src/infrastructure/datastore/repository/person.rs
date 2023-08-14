@@ -36,10 +36,14 @@ impl traits::PersonRepository for PersonRepository {
     }
 
     async fn create(&mut self, new_person: &NewPerson) -> Result<Person, DataStoreError> {
-        let id = sqlx::query!("INSERT INTO persons (name) VALUES ($1)", new_person.name)
-            .execute(&*self.conn.lock_arc().await)
-            .await?
-            .last_insert_rowid();
+        let id = sqlx::query!(
+            "INSERT INTO persons (name, comment) VALUES (?, ?)",
+            new_person.name,
+            new_person.comment
+        )
+        .execute(&*self.conn.lock_arc().await)
+        .await?
+        .last_insert_rowid();
 
         Ok(self.get_by_id(id).await?)
     }
@@ -66,8 +70,9 @@ impl traits::PersonRepository for PersonRepository {
 
     async fn save(&mut self, person: Person) -> Result<Person, DataStoreError> {
         sqlx::query!(
-            "UPDATE persons SET name = $1 WHERE id = $2",
+            "UPDATE persons SET name = ?, comment=? WHERE id = ?",
             person.name,
+            person.comment,
             person.id,
         )
         .execute(&*self.conn.lock_arc().await)

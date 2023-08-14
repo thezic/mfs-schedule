@@ -1,7 +1,7 @@
 use async_mutex::Mutex;
 use async_trait::async_trait;
 
-use chrono::{NaiveDate, NaiveTime};
+use chrono::NaiveTime;
 use sqlx::FromRow;
 use std::sync::Arc;
 
@@ -136,7 +136,7 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
             .execute(&*self.conn.lock().await)
             .await?;
 
-            if result.rows_affected() < 1 {
+            if result.rows_affected() == 0 {
                 return Err(DataStoreError::EntityNotFound);
             }
         }

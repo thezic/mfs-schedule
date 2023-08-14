@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT * FROM ministry_events WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "assignee_name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "assignee_id",
+        "ordinal": 2,
+        "type_info": "Int64"
+      },
+      {
+        "name": "date",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "time",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "place",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "extra_info",
+        "ordinal": 6,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "1834d1d54d9b39cd9a89175aa611b0b34dda6a1763d1f244e75fb448f85414e0"
+}

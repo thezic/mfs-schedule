@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                INSERT INTO ministry_events (\n                    assignee_name\n                    , assignee_id\n                    , date\n                    , time\n                    , place\n                    , extra_info\n                )\n                VALUES (?, ?, ?, ?, ?, ?)\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "6d85c1e4d00353fc1407442c7efae10f9db96a8a6589e2cee8171a09b53d06fe"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                UPDATE ministry_events\n                SET\n                      assignee_name = ?\n                    , assignee_id = ?\n                    , date = ?\n                    , time = ?\n                    , place = ?\n                    , extra_info = ?\n                WHERE\n                    id = ?\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "f47c155e530081254929e2868cf96456963d27c2487fd21cd6ad961155aab61f"
+}
