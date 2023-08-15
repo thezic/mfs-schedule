@@ -17,7 +17,7 @@
 	<div slot="header-right" class="flex-none">
 		<Button href="/persons/new">Add user</Button>
 	</div>
-	<div class="px-8">
+	<div class="px-8 min-h-screen">
 		<div class="flex items-center">
 			<div class="flex-auto">
 				<h1 class="text-base font-semibold leading-6 text-gray-900">Users</h1>

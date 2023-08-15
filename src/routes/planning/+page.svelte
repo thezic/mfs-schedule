@@ -72,7 +72,7 @@
 		<Button on:click={createEvent}>Add meeting</Button>
 	</div>
 	<div>
-		<Table>
+		<Table divClass="overflow-y-visible overflow-x-auto">
 			<TableHead>
 				<TableHeadCell>Time</TableHeadCell>
 				<TableHeadCell>Day</TableHeadCell>
