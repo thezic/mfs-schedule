@@ -161,8 +161,11 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
         &mut self,
         new_event: &NewMinistryEvent,
     ) -> Result<MinistryEvent, DataStoreError> {
+        let time = new_event.time.map(|t| t.format("%H:%M").to_string());
         let id;
+
         {
+            // Scope releases mutex after use
             id = sqlx::query!(
                 r#"
                 INSERT INTO ministry_events (
@@ -178,7 +181,7 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
                 new_event.assignee_name,
                 new_event.assignee_id,
                 new_event.date,
-                new_event.time,
+                time,
                 new_event.place,
                 new_event.extra_info
             )

@@ -1,5 +1,6 @@
 import { formatDate } from '$lib/utils/date';
-import type { MinistryEvent as MinistryEventDto } from 'bindings';
+import type { MinistryEvent as MinistryEventDto, NewMinistryEvent } from 'bindings';
+import { addDays, startOfWeek } from 'date-fns';
 
 export class Time {
 	hour: number;
@@ -18,6 +19,43 @@ export class Time {
 		const minute = parseInt(matches.groups['m']);
 
 		return new Time(hour, minute);
+	}
+}
+
+export interface UndatedEvent {
+	day: number;
+	time?: string;
+	place: string;
+	extraInfo: string;
+}
+
+export interface TemplatedEvent extends Omit<UndatedEvent, 'day'> {
+	date: Date;
+}
+
+export class MinistryEventTemplate {
+	template: UndatedEvent[] = [];
+	name: string;
+	id: number;
+
+	constructor(id: number, name: string, template: UndatedEvent[]) {
+		this.id = id;
+		this.name = name;
+		this.template = template;
+	}
+
+	*atWeek(week: Date) {
+		const monday = startOfWeek(week);
+		for (const template of this.template) {
+			yield {
+				date: formatDate(addDays(monday, template.day)),
+				extraInfo: template.extraInfo,
+				place: template.place,
+				time: template.time ?? null,
+				assigneeId: null,
+				assigneeName: ''
+			} satisfies NewMinistryEvent;
+		}
 	}
 }
 
