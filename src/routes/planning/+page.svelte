@@ -19,12 +19,9 @@
 
 	import DateTimePicker from './DateTimePicker.svelte';
 	import PersonSelect from './PersonSelect.svelte';
+	import Print from './Print.svelte';
 
-	import {
-		MinistryEvent,
-		MinistryEventTemplate,
-		type TemplatedEvent
-	} from '$lib/models/MinistryEvent';
+	import { MinistryEvent, MinistryEventTemplate } from '$lib/models/MinistryEvent';
 	import { Person } from '$lib/models/Person';
 	import { formatDate } from '$lib/utils/date';
 	import AddFromSchedule from './AddFromSchedule.svelte';
@@ -62,9 +59,10 @@
 
 	async function createEventsFromTemplate(template: MinistryEventTemplate) {
 		const promises = compose(
-			map((templ: NewMinistryEvent): Promise<MinistryEvent> => {
+			map(async (templ: NewMinistryEvent): Promise<MinistryEvent> => {
 				console.log(templ);
-				return createMinistryEvent(templ).then((e) => new MinistryEvent(e));
+				const e = await createMinistryEvent(templ);
+				return new MinistryEvent(e);
 			})
 		)(Array.from(template.atWeek(nextWeek)));
 
@@ -114,10 +112,11 @@
 			on:createFromTemplate={(e) => createEventsFromTemplate(e.detail)}
 		/>
 		<Button on:click={createEvent}>Add meeting</Button>
+		<Print />
 	</div>
 	<div class="h-full overflow-auto">
 		<table
-			class="min-w-full grid grid-cols-[min-content,min-content,min-content,repeat(3,1fr),min-content]"
+			class="min-w-full grid grid-cols-[min-content,min-content,min-content,minmax(min-content,13rem),repeat(2,1fr),min-content]"
 		>
 			<thead class="contents">
 				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Wk</th>

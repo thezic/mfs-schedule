@@ -4,9 +4,12 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { ChevronDown } from '@steeze-ui/heroicons';
 	import { MinistryEventTemplate } from '$lib/models/MinistryEvent';
+	import { formatDate } from '$lib/utils/date';
 
 	export let week: Date;
-	let _week = week;
+	let _week = formatDate(week);
+
+	$: _week = formatDate(week);
 
 	const dispatch = createEventDispatcher<{ createFromTemplate: MinistryEventTemplate }>();
 
