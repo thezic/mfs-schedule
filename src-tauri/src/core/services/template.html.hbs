@@ -1,0 +1,19 @@
+<html>
+	<body>
+		<h1>{{month}}</h1>
+		<div>{{text}}</div>
+		<table>
+			<tbody>
+				{{#each events}}
+					<tr>
+						<td>{{date}}</td>
+						<td>{{time}}</td>
+						<td>{{assignee_name}}</td>
+						<td>{{place}}</td>
+						<td>{{extra_info}}</td>
+					</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</body>
+</html>

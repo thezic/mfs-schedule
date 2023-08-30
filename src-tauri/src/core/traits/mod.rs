@@ -24,6 +24,12 @@ pub trait PersonRepository: std::marker::Send {
 
 #[async_trait]
 pub trait MinistryEventRepository: Repository<MinistryEvent, NewMinistryEvent> {
+    async fn get_range(
+        &self,
+        from: chrono::NaiveDate,
+        to: chrono::NaiveDate,
+    ) -> Result<Vec<MinistryEvent>, DataStoreError>;
+
     // async fn get_all(&mut self) -> Result<Vec<MinistryEvent>, DataStoreError>;
     // async fn create(
     //     &mut self,

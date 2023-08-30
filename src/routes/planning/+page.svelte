@@ -119,17 +119,22 @@
 			class="min-w-full grid grid-cols-[min-content,min-content,min-content,minmax(min-content,13rem),repeat(2,1fr),min-content]"
 		>
 			<thead class="contents">
-				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Wk</th>
-				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Time</th>
-				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Day</th>
-				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2"
-					>Assignee</th
-				>
-				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Place</th>
-				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2"
-					>Extra info</th
-				>
-				<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2" />
+				<tr class="contents">
+					<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Wk</th>
+					<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Time</th
+					>
+					<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2">Day</th>
+					<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2"
+						>Assignee</th
+					>
+					<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2"
+						>Place</th
+					>
+					<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2"
+						>Extra info</th
+					>
+					<th class="sticky top-0 h-7 z-40 bg-slate-600 text-white flex justify-start px-2" />
+				</tr>
 			</thead>
 			<tbody class="contents">
 				{#each months as monthKey}

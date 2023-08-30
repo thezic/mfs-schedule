@@ -46,6 +46,11 @@ export function deleteEvent(id: number) {
     return invoke()<null>("delete_event", { id })
 }
 
+export function exportPdf(from: string, to: string, context: Context) {
+    return invoke()<string>("export_pdf", { from,to,context })
+}
+
+export type Context = { text: string }
 export type NewPerson = { name: string; comment: string }
 export type Person = { id: number; name: string; comment: string }
 export type NewMinistryEvent = { assigneeName: string; assigneeId: number | null; date: string; time: string | null; place: string; extraInfo: string }
