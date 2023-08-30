@@ -1,7 +1,7 @@
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Database {
     pub path: String,
 }

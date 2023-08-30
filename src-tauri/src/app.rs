@@ -61,7 +61,7 @@ impl AppState {
 
     pub fn export_service(&self) -> ExportService {
         let persons_repo = MinistryEventRepository::new(self.db_pool.clone());
-        ExportService::new(Box::new(persons_repo))
+        ExportService::new(&self.config, Box::new(persons_repo))
     }
 
     pub async fn cleanup(&self) {

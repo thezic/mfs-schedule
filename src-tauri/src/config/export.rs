@@ -1,4 +1,28 @@
+use std::path::PathBuf;
+
+use directories::UserDirs;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Serialize, Deserialize)]
-pub struct Export {}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Export {
+    pub export_folder: PathBuf,
+    pub command: String,
+    pub args: Vec<String>,
+}
+
+impl Default for Export {
+    fn default() -> Self {
+        let dirs = UserDirs::new().unwrap();
+        Self {
+            export_folder: dirs
+                .document_dir()
+                .expect("Should be able to retrieve current users document directory but couldn't")
+                .to_path_buf(),
+            command: "weasyprint".to_string(),
+            args: vec!["{{ input_file }}", "{{ output_file }}"]
+                .iter()
+                .map(|&s| s.to_string())
+                .collect(),
+        }
+    }
+}

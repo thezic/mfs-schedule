@@ -18,7 +18,7 @@ export function load() {
 	const data = localStorage.getItem(KEY);
 	if (!data) return undefined;
 
-	const result = schema.safeParse(data);
+	const result = schema.safeParse(JSON.parse(data));
 
 	if (!result.success) {
 		console.error('unable to parse data', data);
