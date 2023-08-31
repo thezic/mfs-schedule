@@ -17,6 +17,7 @@ use app::app::AppState;
 async fn main() -> anyhow::Result<()> {
     #[cfg(debug_assertions)]
     export_bindings();
+    simple_logger::SimpleLogger::new().init().unwrap();
 
     let app = tauri::Builder::default()
         .setup(|app| {

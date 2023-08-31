@@ -15,6 +15,8 @@ use crate::core::{
     traits::MinistryEventRepository,
 };
 
+use super::helpers;
+
 #[derive(Debug, Serialize, Deserialize, Type)]
 pub struct Context {
     text: String,
@@ -69,18 +71,22 @@ impl ExportService<'_> {
         let file = File::create(&filepath).unwrap();
 
         let mut handlebars = Handlebars::new();
-        handlebars.strict_mode();
+        handlebars.set_strict_mode(true);
         handlebars
             .register_template_string("template", include_str!("./template.html.hbs"))
             .unwrap();
+        handlebars.register_helper("format", Box::new(helpers::format));
 
-        handlebars.render_to_write("template", &context, file);
+        println!("Rendering template using context {:#?}", &context);
+
+        if let Err(err) = handlebars.render_to_write("template", &context, file) {
+            println!("Failed to render {:#?}", err);
+        }
 
         let mut output = self.config.export.export_folder.clone();
         output.push("output.pdf");
 
         let mut command = Command::new(&self.config.export.command);
-
         let arg_context = HashMap::from([
             (
                 "input_file",
@@ -91,8 +97,6 @@ impl ExportService<'_> {
                 output.into_os_string().into_string().unwrap(),
             ),
         ]);
-
-        println!("Using context {:#?}", &arg_context);
 
         let args = self
             .config

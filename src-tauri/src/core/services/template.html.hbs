@@ -7,13 +7,13 @@
 		<div>{{text}}</div>
 		<table>
 			<tbody>
-				{{#each events}}
+				{{#each events as |event|}}
 					<tr>
-						<td>{{date}}</td>
-						<td>{{time}}</td>
-						<td>{{assignee_name}}</td>
-						<td>{{place}}</td>
-						<td>{{extra_info}}</td>
+						<td>{{format event.date '%d.%m'}}</td>
+						<td>{{event.time}}</td>
+						<td>{{event.assigneeName}}</td>
+						<td>{{event.place}}</td>
+						<td>{{event.extraInfo}}</td>
 					</tr>
 				{{/each}}
 			</tbody>
