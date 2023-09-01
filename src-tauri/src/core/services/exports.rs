@@ -1,11 +1,10 @@
-use chrono::{Datelike, Duration, NaiveDate};
+use chrono::{Datelike, NaiveDate};
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::collections::HashMap;
 use std::env::temp_dir;
 use std::fs::File;
-use std::mem;
 use std::path::PathBuf;
 use std::process::Command;
 use uuid::Uuid;
@@ -133,7 +132,10 @@ impl ExportService<'_> {
         handlebars
             .register_template_string("template", include_str!("./template.html.hbs"))
             .unwrap();
-        handlebars.register_helper("format_date", Box::new(helpers::format_date));
+        handlebars.register_helper(
+            "format_date",
+            Box::new(helpers::FormatDateHelper::new(&self.config.export.locale)),
+        );
         handlebars.register_helper("format_time", Box::new(helpers::format_time));
         handlebars.register_helper("markdown", Box::new(helpers::markdown));
         handlebars.register_helper("capitalize", Box::new(helpers::capitalize));

@@ -10,6 +10,7 @@
 				{{#each events as |event|}}
 					<tr>
 						<td>{{{format_date event.date '%e&nbsp;%B'}}}</td>
+						<td>{{{format_date event.date '%A'}}}</td>
 						<td>{{#if event.time}}{{format_time event.time '%H:%M'}}{{/if}}</td>
 						<td>{{event.assigneeName}}</td>
 						<td>{{event.place}}</td>
