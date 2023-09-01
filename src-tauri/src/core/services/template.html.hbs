@@ -3,14 +3,14 @@
 		<meta charset='utf-8' />
 	</head>
 	<body>
-		<h1>{{month}}</h1>
-		<div>{{text}}</div>
+		<h1>{{capitalize (format_date month '%B')}}</h1>
+		<div>{{{markdown text}}}</div>
 		<table>
 			<tbody>
 				{{#each events as |event|}}
 					<tr>
-						<td>{{format event.date '%d.%m'}}</td>
-						<td>{{event.time}}</td>
+						<td>{{{format_date event.date '%e&nbsp;%B'}}}</td>
+						<td>{{#if event.time}}{{format_time event.time '%H:%M'}}{{/if}}</td>
 						<td>{{event.assigneeName}}</td>
 						<td>{{event.place}}</td>
 						<td>{{event.extraInfo}}</td>

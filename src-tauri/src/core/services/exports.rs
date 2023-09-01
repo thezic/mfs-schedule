@@ -1,10 +1,11 @@
-use chrono::NaiveDate;
+use chrono::{Datelike, Duration, NaiveDate};
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::collections::HashMap;
 use std::env::temp_dir;
 use std::fs::File;
+use std::mem;
 use std::path::PathBuf;
 use std::process::Command;
 use uuid::Uuid;
@@ -17,16 +18,71 @@ use crate::core::{
 
 use super::helpers;
 
+fn find_month_in_range(from: &NaiveDate, to: &NaiveDate) -> NaiveDate {
+    // count the days in each month
+    let stats = from
+        .iter_days()
+        .take_while(|d| d <= to)
+        .fold(HashMap::new(), |mut acc, d| {
+            let counter = acc.entry((d.year(), d.month())).or_insert(0);
+            *counter += 1;
+            acc
+        });
+
+    // Find the month with most days in
+    let ((year, month), _) =
+        stats
+            .iter()
+            .fold(((0, 0), 0), |(max_month, max_count), (&month, &count)| {
+                if count > max_count {
+                    (month, count)
+                } else {
+                    (max_month, max_count)
+                }
+            });
+
+    let best_match = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
+    best_match.clamp(*from, *to)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::NaiveDate;
+
+    macro_rules! get_month_tests {
+        ($($name:ident: from:$from:expr, to:$to:expr, expected:$expected:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let from = NaiveDate::parse_from_str($from, "%Y-%m-%d").unwrap();
+                let to = NaiveDate::parse_from_str($to, "%Y-%m-%d").unwrap();
+                let expected = NaiveDate::parse_from_str($expected, "%Y-%m-%d").unwrap();
+                assert_eq!(find_month_in_range(&from, &to), expected);
+            }
+        )*
+        }
+    }
+
+    get_month_tests! {
+        t1: from: "2023-08-28", to: "2023-10-01", expected: "2023-09-01",
+        t2: from: "2023-09-28", to: "2023-11-01", expected: "2023-10-01",
+        t3: from: "2023-09-04", to: "2023-10-04", expected: "2023-09-04",
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Type)]
 pub struct Context {
     text: String,
 }
 
 #[derive(Debug, Serialize)]
-struct Context2 {
-    month: String,
+struct RenderContext {
+    month: NaiveDate,
     text: String,
     events: Vec<MinistryEvent>,
+    from: NaiveDate,
+    to: NaiveDate,
 }
 
 pub struct ExportService<'a> {
@@ -58,10 +114,12 @@ impl ExportService<'_> {
         );
         let events = self.events_repository.get_range(from, to).await?;
 
-        let context = Context2 {
+        let context = RenderContext {
             events,
             text: extra_context.text,
-            month: String::from("September"),
+            month: find_month_in_range(&from, &to),
+            from,
+            to,
         };
 
         let mut filepath = temp_dir();
@@ -75,7 +133,10 @@ impl ExportService<'_> {
         handlebars
             .register_template_string("template", include_str!("./template.html.hbs"))
             .unwrap();
-        handlebars.register_helper("format", Box::new(helpers::format));
+        handlebars.register_helper("format_date", Box::new(helpers::format_date));
+        handlebars.register_helper("format_time", Box::new(helpers::format_time));
+        handlebars.register_helper("markdown", Box::new(helpers::markdown));
+        handlebars.register_helper("capitalize", Box::new(helpers::capitalize));
 
         println!("Rendering template using context {:#?}", &context);
 

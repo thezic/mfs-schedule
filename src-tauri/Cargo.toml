@@ -39,6 +39,7 @@ directories = "5.0.1"
 handlebars = { version = "4.3.7", features = ["dir_source"] }
 uuid = { version = "1.4.1", features = ["serde", "v4"] }
 simple_logger = "4.2.0"
+markdown = "1.0.0-alpha.12"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

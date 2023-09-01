@@ -8,6 +8,7 @@ pub struct Export {
     pub export_folder: PathBuf,
     pub command: String,
     pub args: Vec<String>,
+    pub locale: String,
 }
 
 impl Default for Export {
@@ -23,6 +24,7 @@ impl Default for Export {
                 .iter()
                 .map(|&s| s.to_string())
                 .collect(),
+            locale: "lv_LV".to_string(),
         }
     }
 }
