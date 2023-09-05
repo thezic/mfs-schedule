@@ -13,6 +13,7 @@
 	let dateFrom = data?.dateFrom;
 	let dateUntil = data?.dateUntil;
 	let text = data?.text ?? '';
+	let headline = data?.headline ?? 'Fieldservice meetings';
 
 	const transitionParams = {
 		x: 320,
@@ -31,18 +32,19 @@
 		const from = formatDate(new Date(Date.parse(dateFrom)));
 		const until = formatDate(new Date(Date.parse(dateUntil)));
 
-		console.log(await exportPdf(from, until, { text }));
+		console.log(await exportPdf(from, until, { text, headline }));
 
 		save({
 			dateFrom: from,
 			dateUntil: until,
-			text
+			text,
+			headline
 		});
 	}
 </script>
 
 <Button on:click={() => (hidden = false)}><Icon class="w-4 h-4" src={Printer} /></Button>
-<Drawer bind:hidden placement="right" transitionType="fly" {transitionParams}>
+<Drawer bind:hidden placement="right" transitionType="fly" width="w-4/5" {transitionParams}>
 	<div class="flex items-center">
 		<h5
 			class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400"
@@ -52,17 +54,30 @@
 		<CloseButton on:click={() => (hidden = true)} class="mb-4 dark:text-white" />
 	</div>
 	<form on:submit={(e) => exportProgram(e)}>
-		<div class="mb-6">
-			<Label for="name" class="block mb-2">From</Label>
-			<Input id="name" name="from" type="date" required placeholder="From" bind:value={dateFrom} />
+		<div class="mb-6 flex justify-between gap-4">
+			<div class="flex-grow">
+				<Label for="name" class="block mb-2">From</Label>
+				<Input
+					id="name"
+					name="from"
+					type="date"
+					required
+					placeholder="From"
+					bind:value={dateFrom}
+				/>
+			</div>
+			<div class="flex-grow">
+				<Label for="bland" class="block mb-2">To</Label>
+				<Input id="bland" name="to" type="date" required placeholder="To" bind:value={dateUntil} />
+			</div>
 		</div>
 		<div class="mb-6">
-			<Label for="bland" class="block mb-2">To</Label>
-			<Input id="bland" name="to" type="date" required placeholder="To" bind:value={dateUntil} />
+			<Label for="bland" class="block mb-2">Headline</Label>
+			<Input name="headline" required placeholder="To" bind:value={headline} />
 		</div>
 		<div class="mb-6">
 			<Label for="brand" class="mb-2">Extra text</Label>
-			<Textarea placeholder="Enter event description here" rows="4" name="text" bind:value={text} />
+			<Textarea placeholder="Enter event description here" rows="8" name="text" bind:value={text} />
 		</div>
 		<div class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute">
 			<Button type="submit" class="w-full">Export</Button>

@@ -16,7 +16,7 @@
 		"bundle": {
 			"active": true,
 			"category": "DeveloperTool",
-			"copyright": "",
+			"copyright": "Simon Dahlberg",
 			"deb": {
 				"depends": []
 			},
@@ -37,7 +37,7 @@
 				"providerShortName": null,
 				"signingIdentity": null
 			},
-			"resources": [],
+			"resources": ["resources/templates/*"],
 			"shortDescription": "",
 			"targets": "all",
 			"windows": {

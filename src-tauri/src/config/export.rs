@@ -20,10 +20,14 @@ impl Default for Export {
                 .expect("Should be able to retrieve current users document directory but couldn't")
                 .to_path_buf(),
             command: "weasyprint".to_string(),
-            args: vec!["{{ input_file }}", "{{ output_file }}"]
-                .iter()
-                .map(|&s| s.to_string())
-                .collect(),
+            args: vec![
+                "{{ input_file }}",
+                "{{ output_file }}",
+                "--presentational-hints",
+            ]
+            .iter()
+            .map(|&s| s.to_string())
+            .collect(),
             locale: "lv_LV".to_string(),
         }
     }

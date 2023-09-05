@@ -8,7 +8,8 @@ const DATE_REGEX = /\d{4}-\d{2}-\d{2}/;
 const schema = z.object({
 	dateFrom: z.string().regex(DATE_REGEX),
 	dateUntil: z.string().regex(DATE_REGEX),
-	text: z.string().optional()
+	text: z.string().optional(),
+	headline: z.string().optional()
 });
 
 type Input = z.input<typeof schema>;

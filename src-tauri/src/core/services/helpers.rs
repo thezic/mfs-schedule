@@ -1,6 +1,7 @@
 use handlebars::handlebars_helper;
 use handlebars::HelperDef;
 use handlebars::*;
+use serde_json::Value as Json;
 
 use ::markdown as md;
 use chrono::Locale;
@@ -64,11 +65,103 @@ impl HelperDef for FormatDateHelper {
     }
 }
 
+fn create_block<'reg: 'rc, 'rc>(param: &'rc PathAndJson<'reg, 'rc>) -> BlockContext<'reg> {
+    let mut block = BlockContext::new();
+    if let Some(new_path) = param.context_path() {
+        *block.base_path_mut() = new_path.clone();
+    } else {
+        block.set_base_value(param.value().clone())
+    }
+    block
+}
+
+pub struct FirstHelper;
+impl HelperDef for FirstHelper {
+    fn call<'reg: 'rc, 'rc>(
+        &self,
+        h: &Helper<'reg, 'rc>,
+        r: &'reg Handlebars<'reg>,
+        ctx: &'rc Context,
+        rc: &mut RenderContext<'reg, 'rc>,
+        out: &mut dyn Output,
+    ) -> HelperResult {
+        let value = h
+            .param(0)
+            .ok_or(RenderError::new("No param found for helper 'first'"))?;
+
+        let v = match *value.value() {
+            Json::Array(ref list) => list.first(),
+            _ => None,
+        };
+
+        if v.is_none() {
+            return Ok(());
+        }
+
+        let mut block = BlockContext::new();
+        block.set_base_value(v.unwrap().clone());
+
+        rc.push_block(block);
+
+        if let Some(template) = h.template() {
+            template.render(r, ctx, rc, out)?;
+        }
+
+        rc.pop_block();
+
+        Ok(())
+    }
+}
+
+pub struct LastHelper;
+impl HelperDef for LastHelper {
+    fn call<'reg: 'rc, 'rc>(
+        &self,
+        h: &Helper<'reg, 'rc>,
+        r: &'reg Handlebars<'reg>,
+        ctx: &'rc Context,
+        rc: &mut RenderContext<'reg, 'rc>,
+        out: &mut dyn Output,
+    ) -> HelperResult {
+        let value = h
+            .param(0)
+            .ok_or(RenderError::new("No param found for helper 'last'"))?;
+
+        let v = match *value.value() {
+            Json::Array(ref list) => list.last(),
+            _ => None,
+        };
+
+        if v.is_none() {
+            return Ok(());
+        }
+
+        let mut block = BlockContext::new();
+        block.set_base_value(v.unwrap().clone());
+
+        rc.push_block(block);
+
+        if let Some(template) = h.template() {
+            template.render(r, ctx, rc, out)?;
+        }
+
+        rc.pop_block();
+
+        Ok(())
+    }
+}
+
+handlebars_helper!(last: |x: Json| match x {
+    Json::String(s) => to_json(s.chars().last()),
+    Json::Array(a) => to_json(a.last()),
+    _ => to_json(""),
+});
+
 handlebars_helper!(format_time: |t: NaiveTime, fmt:str| t.format(fmt).to_string());
 handlebars_helper!(markdown: |text: str| md::to_html(text));
 handlebars_helper!(capitalize: |text: str| {
 let mut chars = text.chars();
 match chars.next() {
-    Some(first) => first.to_uppercase().to_string() + chars.as_str(),
+    Some(first_character) => first_character.to_uppercase().to_string() + chars.as_str(),
     None => String::new(),
 }});

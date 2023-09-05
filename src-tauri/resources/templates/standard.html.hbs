@@ -1,0 +1,77 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<style>
+			html {
+				font-family: Arial;
+				font-size: 10pt;
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				border-style: hidden;
+			}
+			tr {
+				border-bottom: 1px solid #ccc;
+			}
+
+			tr:last-child {
+				border: none;
+			}
+
+			td {
+				vertical-align: baseline;
+				text-align: left;
+				padding: 0.3rem 0.5rem;
+			}
+			.nowrap {
+				white-space: nowrap;
+			}
+			h1 {
+				color: #e33;
+				font-family: 'Comic sans MS';
+				margin-bottom: 2rem;
+			}
+			.subheading {
+				display: flex;
+				justify-content: space-between;
+				border-top: 1px solid #e33;
+				font-size: 1rem;
+			}
+			.block {
+				margin-top: 2rem;
+			}
+			.info p {
+				margin: 0;
+				padding: 8;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>
+			<div>{{ headline }}</div>
+			<div class="subheading">
+				<div>{{capitalize (format_date month '%B')}}</div>
+				<div>
+					{{#first events}}{{format_date date '%d.%m' }}{{/first}} - {{#last events}}{{format_date
+					date '%d.%m'}}{{/last}}
+				</div>
+			</div>
+		</h1>
+		<div>{{{markdown text}}}</div>
+		<table class="block">
+			<tbody>
+				{{#each events as |event|}}
+				<tr>
+					<td>{{{format_date event.date '%e&nbsp;%B'}}}</td>
+					<td>{{{format_date event.date '%A'}}}</td>
+					<td>{{#if event.time}}{{format_time event.time '%H:%M'}}{{/if}}</td>
+					<td class="nowrap">{{event.assigneeName}}</td>
+					<td class="info">{{{markdown event.place}}} {{{markdown event.extraInfo}}}</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</body>
+</html>

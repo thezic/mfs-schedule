@@ -72,6 +72,7 @@ mod tests {
 
 #[derive(Debug, Serialize, Deserialize, Type)]
 pub struct Context {
+    headline: String,
     text: String,
 }
 
@@ -79,6 +80,7 @@ pub struct Context {
 struct RenderContext {
     month: NaiveDate,
     text: String,
+    headline: String,
     events: Vec<MinistryEvent>,
     from: NaiveDate,
     to: NaiveDate,
@@ -86,16 +88,19 @@ struct RenderContext {
 
 pub struct ExportService<'a> {
     config: &'a Config,
+    app_handle: tauri::AppHandle,
     events_repository: Box<dyn MinistryEventRepository>,
 }
 
 impl ExportService<'_> {
-    pub fn new(
-        config: &Config,
+    pub fn new<'a>(
+        config: &'a Config,
+        app_handle: tauri::AppHandle,
         events_repository: Box<dyn MinistryEventRepository>,
-    ) -> ExportService {
+    ) -> ExportService<'a> {
         ExportService {
             config,
+            app_handle,
             events_repository,
         }
     }
@@ -116,6 +121,7 @@ impl ExportService<'_> {
         let context = RenderContext {
             events,
             text: extra_context.text,
+            headline: extra_context.headline,
             month: find_month_in_range(&from, &to),
             from,
             to,
@@ -127,11 +133,24 @@ impl ExportService<'_> {
 
         let file = File::create(&filepath).unwrap();
 
+        let template_directory = self
+            .app_handle
+            .path_resolver()
+            .resolve_resource("resources/templates/")
+            .expect("template directory should be available");
+
         let mut handlebars = Handlebars::new();
         handlebars.set_strict_mode(true);
         handlebars
-            .register_template_string("template", include_str!("./template.html.hbs"))
+            .register_templates_directory(
+                ".html.hbs",
+                "/Users/simon/dev/mine/mfs-schedule/templates",
+            )
             .unwrap();
+        handlebars
+            .register_templates_directory(".html.hbs", template_directory)
+            .unwrap();
+
         handlebars.register_helper(
             "format_date",
             Box::new(helpers::FormatDateHelper::new(&self.config.export.locale)),
@@ -139,10 +158,12 @@ impl ExportService<'_> {
         handlebars.register_helper("format_time", Box::new(helpers::format_time));
         handlebars.register_helper("markdown", Box::new(helpers::markdown));
         handlebars.register_helper("capitalize", Box::new(helpers::capitalize));
+        handlebars.register_helper("first", Box::new(helpers::FirstHelper));
+        handlebars.register_helper("last", Box::new(helpers::LastHelper));
 
         println!("Rendering template using context {:#?}", &context);
 
-        if let Err(err) = handlebars.render_to_write("template", &context, file) {
+        if let Err(err) = handlebars.render_to_write("standard", &context, file) {
             println!("Failed to render {:#?}", err);
         }
 
@@ -157,7 +178,7 @@ impl ExportService<'_> {
             ),
             (
                 "output_file",
-                output.into_os_string().into_string().unwrap(),
+                output.clone().into_os_string().into_string().unwrap(),
             ),
         ]);
 
@@ -175,6 +196,8 @@ impl ExportService<'_> {
         command.spawn().expect("Failed to export");
 
         println!("Exported file: {}", filepath.display());
-        Ok(filepath)
+
+        opener::open(&output).unwrap();
+        Ok(output)
     }
 }

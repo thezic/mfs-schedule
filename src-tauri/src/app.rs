@@ -1,6 +1,7 @@
 use async_mutex::Mutex;
 use sqlx::sqlite::SqlitePoolOptions;
 use std::sync::Arc;
+use tauri::Manager;
 
 use crate::{
     config::Config, core::services::*,
@@ -59,9 +60,9 @@ impl AppState {
         Service::new(Box::new(persons_repo), Box::new(ministry_event_repo))
     }
 
-    pub fn export_service(&self) -> ExportService {
+    pub fn export_service(&self, handle: tauri::AppHandle) -> ExportService {
         let persons_repo = MinistryEventRepository::new(self.db_pool.clone());
-        ExportService::new(&self.config, Box::new(persons_repo))
+        ExportService::new(&self.config, handle, Box::new(persons_repo))
     }
 
     pub async fn cleanup(&self) {

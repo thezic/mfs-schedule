@@ -129,9 +129,13 @@ pub async fn delete_event(app: tauri::State<'_, AppState>, id: i32) -> Result<()
 #[specta::specta]
 pub async fn export_pdf(
     app: tauri::State<'_, AppState>,
+    handle: tauri::AppHandle,
     from: NaiveDate,
     to: NaiveDate,
     context: Context,
 ) -> Result<std::path::PathBuf, MyError> {
-    Ok(app.export_service().export_pdf(from, to, context).await?)
+    Ok(app
+        .export_service(handle)
+        .export_pdf(from, to, context)
+        .await?)
 }
