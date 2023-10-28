@@ -29,18 +29,19 @@ sqlx = { version = "0.7", features = [
   "migrate",
   "chrono",
 ] }
-anyhow = "1.0"
-specta = { verson = "1.0.5", features = ["chrono"] }
-tauri-specta = { version = "1.0.2", features = ["typescript"] }
-chrono = { version = "0.4.26", features = ["serde", "unstable-locales"] }
-thiserror = "1.0.44"
+anyhow = "1.0.75"
+specta = { version = "1.0.5", features = ["chrono"] }
+tauri-specta = { version = "1.0.2", features = ["typescript", "javascript"] }
+chrono = { version = "0.4.31", features = ["serde", "unstable-locales"] }
+thiserror = "1.0.50"
 async-mutex = "1.4.0"
 directories = "5.0.1"
-handlebars = { version = "4.3.7", features = ["dir_source"] }
-uuid = { version = "1.4.1", features = ["serde", "v4"] }
-simple_logger = "4.2.0"
-markdown = "1.0.0-alpha.12"
+handlebars = { version = "4.4.0", features = ["dir_source"] }
+uuid = { version = "1.5.0", features = ["serde", "v4"] }
+markdown = "1.0.0-alpha.14"
 opener = { version = "0.6.1", features = ["reveal"] }
+flexi_logger = { version = "0.27.2", features = ["specfile"] }
+log = "0.4.20"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

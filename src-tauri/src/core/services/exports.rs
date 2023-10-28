@@ -93,11 +93,11 @@ pub struct ExportService<'a> {
 }
 
 impl ExportService<'_> {
-    pub fn new<'a>(
-        config: &'a Config,
+    pub fn new(
+        config: &Config,
         app_handle: tauri::AppHandle,
         events_repository: Box<dyn MinistryEventRepository>,
-    ) -> ExportService<'a> {
+    ) -> ExportService<'_> {
         ExportService {
             config,
             app_handle,
@@ -161,10 +161,10 @@ impl ExportService<'_> {
         handlebars.register_helper("first", Box::new(helpers::FirstHelper));
         handlebars.register_helper("last", Box::new(helpers::LastHelper));
 
-        println!("Rendering template using context {:#?}", &context);
+        log::debug!("Rendering template using context {:#?}", &context);
 
         if let Err(err) = handlebars.render_to_write("standard", &context, file) {
-            println!("Failed to render {:#?}", err);
+            log::error!("Failed to render {:#?}", err);
         }
 
         let mut output = self.config.export.export_folder.clone();
@@ -191,11 +191,23 @@ impl ExportService<'_> {
             .collect::<Result<Vec<_>, _>>()
             .unwrap();
 
-        println!("Using args {:#?}", &args);
+        log::debug!("Export file using args {:#?}", &args);
         command.args(args);
-        command.spawn().expect("Failed to export");
 
-        println!("Exported file: {}", filepath.display());
+        let mut handle = match command.spawn() {
+            Ok(handle) => handle,
+            Err(error) => {
+                log::error!("Unable to start export: {error:?}");
+                panic!("could not start export");
+            }
+        };
+
+        if let Err(error) = handle.wait() {
+            log::error!("Export command didn't succeed: {error:?}");
+            panic!("Export command didn't succeed");
+        }
+
+        log::info!("Exported file: {}", filepath.display());
 
         opener::open(&output).unwrap();
         Ok(output)

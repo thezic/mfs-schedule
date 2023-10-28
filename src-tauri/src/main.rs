@@ -3,6 +3,7 @@
 
 mod commands;
 use commands::*;
+use flexi_logger::FileSpec;
 
 use std::env;
 
@@ -17,7 +18,13 @@ use app::app::AppState;
 async fn main() -> anyhow::Result<()> {
     #[cfg(debug_assertions)]
     export_bindings();
-    simple_logger::SimpleLogger::new().init().unwrap();
+    let _logger = flexi_logger::Logger::try_with_env_or_str("debug")?
+        .log_to_file(FileSpec::default())
+        .duplicate_to_stdout(flexi_logger::Duplicate::Info)
+        .write_mode(flexi_logger::WriteMode::BufferAndFlush)
+        .start()?;
+
+    // simple_logger::SimpleLogger::new().init().unwrap();
 
     let app = tauri::Builder::default()
         .setup(|app| {

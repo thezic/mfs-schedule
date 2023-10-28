@@ -65,16 +65,6 @@ impl HelperDef for FormatDateHelper {
     }
 }
 
-fn create_block<'reg: 'rc, 'rc>(param: &'rc PathAndJson<'reg, 'rc>) -> BlockContext<'reg> {
-    let mut block = BlockContext::new();
-    if let Some(new_path) = param.context_path() {
-        *block.base_path_mut() = new_path.clone();
-    } else {
-        block.set_base_value(param.value().clone())
-    }
-    block
-}
-
 pub struct FirstHelper;
 impl HelperDef for FirstHelper {
     fn call<'reg: 'rc, 'rc>(

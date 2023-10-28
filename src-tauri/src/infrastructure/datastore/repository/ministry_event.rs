@@ -207,6 +207,7 @@ impl traits::MinistryEventRepository for MinistryEventRepository {
             SELECT * FROM ministry_events
             WHERE 
                 date BETWEEN ? and ?
+            ORDER BY date
             "#,
             from,
             to
