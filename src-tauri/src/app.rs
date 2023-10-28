@@ -1,7 +1,6 @@
 use async_mutex::Mutex;
 use sqlx::sqlite::SqlitePoolOptions;
 use std::sync::Arc;
-use tauri::Manager;
 
 use crate::{
     config::Config, core::services::*,

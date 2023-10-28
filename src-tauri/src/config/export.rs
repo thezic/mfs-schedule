@@ -14,13 +14,14 @@ pub struct Export {
 impl Default for Export {
     fn default() -> Self {
         let dirs = UserDirs::new().unwrap();
+
         Self {
             export_folder: dirs
                 .document_dir()
                 .expect("Should be able to retrieve current users document directory but couldn't")
                 .to_path_buf(),
-            command: "weasyprint".to_string(),
-            args: vec![
+            command: "/opt/homebrew/bin/weasyprint".to_owned(),
+            args: [
                 "{{ input_file }}",
                 "{{ output_file }}",
                 "--presentational-hints",

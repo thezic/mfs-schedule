@@ -146,7 +146,6 @@
 				</vbox>
 			{/each}
 		</vbox>
-		<pre>{JSON.stringify(templates, null, 2)}</pre>
 	</div>
 </MainLayout>
 

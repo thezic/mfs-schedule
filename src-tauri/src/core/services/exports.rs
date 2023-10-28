@@ -191,7 +191,7 @@ impl ExportService<'_> {
             .collect::<Result<Vec<_>, _>>()
             .unwrap();
 
-        log::debug!("Export file using args {:#?}", &args);
+        log::debug!("Export file using {command:?} {:#?}", &args);
         command.args(args);
 
         let mut handle = match command.spawn() {

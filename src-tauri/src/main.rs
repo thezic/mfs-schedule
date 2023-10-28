@@ -19,12 +19,16 @@ async fn main() -> anyhow::Result<()> {
     #[cfg(debug_assertions)]
     export_bindings();
     let _logger = flexi_logger::Logger::try_with_env_or_str("debug")?
-        .log_to_file(FileSpec::default())
+        .log_to_file(
+            FileSpec::default().directory(
+                directories::UserDirs::new()
+                    .expect("Unable to get users directory")
+                    .home_dir(),
+            ),
+        )
         .duplicate_to_stdout(flexi_logger::Duplicate::Info)
         .write_mode(flexi_logger::WriteMode::BufferAndFlush)
         .start()?;
-
-    // simple_logger::SimpleLogger::new().init().unwrap();
 
     let app = tauri::Builder::default()
         .setup(|app| {
