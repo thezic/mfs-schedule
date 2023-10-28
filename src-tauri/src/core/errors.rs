@@ -12,3 +12,6 @@ pub enum DataStoreError {
     #[error("Unknown data store error")]
     Unknown,
 }
+
+#[derive(Error, Debug)]
+pub enum ExportError {}

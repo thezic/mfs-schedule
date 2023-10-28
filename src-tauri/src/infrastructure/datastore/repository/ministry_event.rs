@@ -194,4 +194,27 @@ impl traits::Repository<MinistryEvent, NewMinistryEvent> for MinistryEventReposi
     }
 }
 
-impl traits::MinistryEventRepository for MinistryEventRepository {}
+#[async_trait]
+impl traits::MinistryEventRepository for MinistryEventRepository {
+    async fn get_range(
+        &self,
+        from: chrono::NaiveDate,
+        to: chrono::NaiveDate,
+    ) -> Result<Vec<MinistryEvent>, DataStoreError> {
+        let result = sqlx::query_as!(
+            MinistryEventRow,
+            r#"
+            SELECT * FROM ministry_events
+            WHERE 
+                date BETWEEN ? and ?
+            ORDER BY date
+            "#,
+            from,
+            to
+        )
+        .fetch_all(&*self.conn.lock().await)
+        .await?;
+
+        Ok(MinistryEventRowVec(result).try_into()?)
+    }
+}

@@ -3,7 +3,7 @@ use sqlx::sqlite::SqlitePoolOptions;
 use std::sync::Arc;
 
 use crate::{
-    config::Config, core::services::Service,
+    config::Config, core::services::*,
     infrastructure::datastore::repository::ministry_event::MinistryEventRepository,
     infrastructure::datastore::repository::person::PersonRepository,
 };
@@ -52,11 +52,16 @@ impl AppState {
         AppState { config, db_pool }
     }
 
-    pub fn service(&self) -> Service {
+    pub fn schedule_service(&self) -> Service {
         let persons_repo = PersonRepository::new(self.db_pool.clone());
         let ministry_event_repo = MinistryEventRepository::new(self.db_pool.clone());
 
         Service::new(Box::new(persons_repo), Box::new(ministry_event_repo))
+    }
+
+    pub fn export_service(&self, handle: tauri::AppHandle) -> ExportService {
+        let persons_repo = MinistryEventRepository::new(self.db_pool.clone());
+        ExportService::new(&self.config, handle, Box::new(persons_repo))
     }
 
     pub async fn cleanup(&self) {

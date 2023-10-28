@@ -13,18 +13,13 @@
 
 	const dispatch = createEventDispatcher<{ createFromTemplate: MinistryEventTemplate }>();
 
-	let templates = [
-		new MinistryEventTemplate(1, 'Only weekend', [
-			{ day: 6, time: '10:30:00', place: 'Pie astrīdas, Puķu iela 5', extraInfo: '' },
-			{ day: 7, place: 'grupas', extraInfo: '' }
-		]),
-		new MinistryEventTemplate(2, 'week', [
-			{ day: 3, time: '18:00:00', place: 'Valstibas zale', extraInfo: '' },
-			{ day: 5, time: '10:00:00', place: 'Valstibas zale', extraInfo: '' },
-			{ day: 6, time: '10:30:00', place: 'Valstibas zale', extraInfo: '' },
-			{ day: 7, place: 'grupas', extraInfo: '' }
-		])
-	];
+	let templates = load();
+
+	function load(): MinistryEventTemplate[] {
+		const json = localStorage.getItem('TEMPLATES');
+		const data = json ? JSON.parse(json) : [];
+		return data.map((t: any) => new MinistryEventTemplate(t.id, t.name, t.template));
+	}
 
 	function onAdd(template: MinistryEventTemplate) {
 		dispatch('createFromTemplate', template);

@@ -1,130 +1,34 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod commands;
+use commands::*;
+use flexi_logger::FileSpec;
+
 use std::env;
 
-use app::core::entities::ministry_event::MinistryEvent;
-use app::core::entities::ministry_event::NewMinistryEvent;
-use app::core::errors::DataStoreError;
 use specta::collect_types;
 use tauri::Manager;
 use tauri::RunEvent;
 use tauri_specta::ts;
 
 use app::app::AppState;
-use app::core::entities::person::NewPerson;
-use app::core::entities::*;
-
-#[derive(serde::Serialize, serde::Deserialize)]
-struct MyError {
-    error: String,
-}
-
-impl From<sqlx::Error> for MyError {
-    fn from(value: sqlx::Error) -> Self {
-        MyError {
-            error: value.to_string(),
-        }
-    }
-}
-
-impl From<anyhow::Error> for MyError {
-    fn from(value: anyhow::Error) -> Self {
-        MyError {
-            error: value.to_string(),
-        }
-    }
-}
-
-impl From<DataStoreError> for MyError {
-    fn from(value: DataStoreError) -> Self {
-        MyError {
-            error: value.to_string(),
-        }
-    }
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn create_person(
-    app: tauri::State<'_, AppState>,
-    new_person: NewPerson<'_>,
-) -> Result<person::Person, MyError> {
-    let dir = env::current_dir().unwrap();
-    println!("Current working directory: {}", dir.display());
-    println!("Create person: {:#?}", new_person);
-
-    Ok(app.service().create_person(&new_person).await?)
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn get_persons(app: tauri::State<'_, AppState>) -> Result<Vec<person::Person>, MyError> {
-    Ok(app.service().get_persons().await?)
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn delete_person(app: tauri::State<'_, AppState>, id: i32) -> Result<(), MyError> {
-    app.service().delete_person(id.into()).await?;
-    Ok(())
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn get_person_by_id(
-    app: tauri::State<'_, AppState>,
-    id: i32,
-) -> Result<person::Person, MyError> {
-    Ok(app.service().get_person_by_id(id.into()).await?)
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn update_person(
-    app: tauri::State<'_, AppState>,
-    person: person::Person,
-) -> Result<person::Person, MyError> {
-    Ok(app.service().update_person(person).await?)
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn get_planned_events(
-    app: tauri::State<'_, AppState>,
-) -> Result<Vec<MinistryEvent>, MyError> {
-    Ok(app.service().get_planned_events().await?)
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn create_event(
-    app: tauri::State<'_, AppState>,
-    new_event: NewMinistryEvent,
-) -> Result<MinistryEvent, MyError> {
-    let event = app.service().create_event(&new_event).await?;
-    Ok(event)
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn update_event(
-    app: tauri::State<'_, AppState>,
-    event: MinistryEvent,
-) -> Result<MinistryEvent, MyError> {
-    Ok(app.service().update_event(event).await?)
-}
-
-#[tauri::command]
-#[specta::specta]
-async fn delete_event(app: tauri::State<'_, AppState>, id: i32) -> Result<(), MyError> {
-    Ok(app.service().delete_event(id.into()).await?)
-}
 
 #[async_std::main]
 async fn main() -> anyhow::Result<()> {
     #[cfg(debug_assertions)]
     export_bindings();
+    let _logger = flexi_logger::Logger::try_with_env_or_str("debug")?
+        .log_to_file(
+            FileSpec::default().directory(
+                directories::UserDirs::new()
+                    .expect("Unable to get users directory")
+                    .home_dir(),
+            ),
+        )
+        .duplicate_to_stdout(flexi_logger::Duplicate::Info)
+        .write_mode(flexi_logger::WriteMode::BufferAndFlush)
+        .start()?;
 
     let app = tauri::Builder::default()
         .setup(|app| {
@@ -142,6 +46,7 @@ async fn main() -> anyhow::Result<()> {
             create_event,
             update_event,
             delete_event,
+            export_pdf,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -169,6 +74,7 @@ fn export_bindings() {
             create_event,
             update_event,
             delete_event,
+            export_pdf,
         ],
         "../src/bindings.ts",
     )
