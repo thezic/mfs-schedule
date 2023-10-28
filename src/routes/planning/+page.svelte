@@ -6,9 +6,8 @@
 	import { Trash } from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { compose, sort, groupBy, last, prop, defaultTo, map } from 'rambda';
-	import startOfWeek from 'date-fns/startOfWeek';
-	import addDays from 'date-fns/addDays';
 	import nextMonday from 'date-fns/nextMonday';
+	import startOfMonth from 'date-fns/startOfMonth';
 
 	import {
 		createEvent as createMinistryEvent,
@@ -31,9 +30,8 @@
 	let persons = data.persons.map((person) => new Person(person));
 
 	const groupByMonth = groupBy((event: MinistryEvent) => {
-		const monday = startOfWeek(event.date, { weekStartsOn: 1 });
-		const thursday = addDays(monday, 3);
-		return '' + ((thursday.getFullYear() << 4) + thursday.getMonth());
+		const month = startOfMonth(event.date);
+		return '' + ((month.getFullYear() << 4) + month.getMonth());
 	});
 
 	const sortByDate = sort(
@@ -92,12 +90,10 @@
 	const locale = navigator.language;
 
 	function getMonthNameFromKey(month: string) {
-		// const m = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
 		const date = new Date();
 		date.setMonth(+month & 0xf);
 		date.setDate(1);
 		return date.toLocaleString(locale, { month: 'long' });
-		// return m[+month & 0xf];
 	}
 	// let tableData: { event: MinistryEvent; markMonth: boolean }[];
 	$: tableData = compose(groupByMonth, sortByDate)(events);
@@ -145,23 +141,24 @@
 					</div>
 					{#each tableData[monthKey] as event (event.id)}
 						{@const weekNr = getISOWeek(event.date)}
+						{@const oddWeek = weekNr % 2}
 						<tr class="contents">
-							<td class:odd-week={weekNr % 2} class="!pl-2">
+							<td class:odd-week={oddWeek} class="!pl-2">
 								{getISOWeek(event.date)}
 							</td>
-							<td class:odd-week={weekNr % 2}>
+							<td class:odd-week={oddWeek}>
 								<DateTimePicker
 									bind:date={event.date}
 									bind:time={event.time}
 									on:change={() => save(event)}
 								/>
 							</td>
-							<td class:odd-week={weekNr % 2}
+							<td class:odd-week={oddWeek}
 								>{event.date.toLocaleDateString(locale, {
 									weekday: 'long'
 								})}</td
 							>
-							<td class:odd-week={weekNr % 2}>
+							<td class:odd-week={oddWeek}>
 								<PersonSelect
 									bind:name={event.assigneeName}
 									bind:personId={event.assigneeId}
@@ -169,21 +166,21 @@
 									on:change={() => save(event)}
 								/>
 							</td>
-							<td class:odd-week={weekNr % 2} class=""
+							<td class:odd-week={oddWeek} class=""
 								><input
 									class="block w-full h-full px-2 bg-slate-100 border border-slate-200 rounded-sm"
 									bind:value={event.place}
 									on:blur={() => save(event)}
 								/></td
 							>
-							<td class:odd-week={weekNr % 2} class="p-0"
+							<td class:odd-week={oddWeek} class="p-0"
 								><input
 									class="block w-full h-full px-2 bg-slate-100 border border-slate-200 rounded-sm"
 									bind:value={event.extraInfo}
 									on:blur={() => save(event)}
 								/></td
 							>
-							<td class:odd-week={weekNr % 2}>
+							<td class:odd-week={oddWeek}>
 								<Button
 									outline
 									size="xs"

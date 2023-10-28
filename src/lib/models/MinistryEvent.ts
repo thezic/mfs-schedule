@@ -57,6 +57,15 @@ export class MinistryEventTemplate {
 			} satisfies NewMinistryEvent;
 		}
 	}
+
+	add(event: UndatedEvent) {
+		this.template.push(event);
+	}
+
+	remove(event: UndatedEvent) {
+		const index = this.template.indexOf(event);
+		if (index != -1) this.template.splice(index, 1);
+	}
 }
 
 export class MinistryEvent {
